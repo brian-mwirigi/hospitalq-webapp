@@ -1,14 +1,14 @@
 import http from 'http';
 import dotenv from 'dotenv';
 import { Server } from 'socket.io';
-import connectDB from './config/db.js';
+import connectDB, { ensureDb, isDbReady } from './config/db.js';
 import { createApp } from './app.js';
 import { initSocket } from './socket/index.js';
 
 dotenv.config();
 
 const startServer = async () => {
-  await connectDB();
+  const connected = await connectDB();
 
   const ioHolder = { io: null };
   const app = createApp(ioHolder);
@@ -27,7 +27,18 @@ const startServer = async () => {
   const PORT = process.env.PORT || 5000;
   httpServer.listen(PORT, () => {
     console.log(`HospitalQ server running on http://localhost:${PORT}`);
+    if (!connected) {
+      console.log('WARNING: MongoDB not connected. Login/queue will fail until DB connects.');
+    }
   });
+
+  // keep trying every 15s if atlas drops / ip blocks
+  setInterval(async () => {
+    if (!isDbReady()) {
+      console.log('Retrying MongoDB connection...');
+      await ensureDb();
+    }
+  }, 15000);
 };
 
 startServer();

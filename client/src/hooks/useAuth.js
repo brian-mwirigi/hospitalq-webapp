@@ -16,7 +16,7 @@ export function useAuth() {
   const meQuery = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: authService.getMe,
-    enabled: !!token,
+    enabled: !!token && !user,
     retry: false,
   });
 
@@ -26,11 +26,12 @@ export function useAuth() {
     }
   }, [meQuery.data, setUser]);
 
+  // only clear login if token is actually invalid
   useEffect(() => {
-    if (meQuery.isError) {
+    if (meQuery.isError && meQuery.error?.response?.status === 401) {
       logoutAction();
     }
-  }, [meQuery.isError, logoutAction]);
+  }, [meQuery.isError, meQuery.error, logoutAction]);
 
   async function login(email, password) {
     const data = await authService.login(email, password);
@@ -43,7 +44,7 @@ export function useAuth() {
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout request failed, clearing local auth anyway');
+      // ignore
     }
     logoutAction();
     queryClient.removeQueries({ queryKey: ['auth', 'me'] });
@@ -53,7 +54,7 @@ export function useAuth() {
     user,
     token,
     isAuthed,
-    isLoadingUser: meQuery.isLoading && !!token,
+    isLoadingUser: meQuery.isLoading && !!token && !user,
     login,
     logout,
   };

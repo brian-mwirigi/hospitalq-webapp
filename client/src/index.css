@@ -1,101 +1,176 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --color-primary: #0B6E4F;
-  --color-secondary: #17A589;
-  --color-accent: #F4A261;
-  --color-danger: #E63946;
-  --color-success: #2DC653;
-  --color-bg-light: #F0FAF6;
-  --color-gray1: #F5F5F5;
-  --color-gray2: #D9D9D9;
-  --color-gray3: #6B7280;
-
-  --color-border: var(--color-gray2);
-  --color-accent-bg: rgba(244, 162, 97, 0.15);
-  --color-accent-border: rgba(244, 162, 97, 0.35);
-  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  font-family: var(--font-sans);
-  font-size: 16px;
-  scroll-behavior: smooth;
+@theme {
+  --color-primary: #0b6e4f;
+  --color-secondary: #17a589;
+  --color-accent: #f4a261;
+  --color-danger: #e63946;
+  --color-success: #2dc653;
+  --color-warning: #f4a261;
+  --color-bgLight: #f0faf6;
+  --color-gray1: #f5f5f5;
+  --color-gray2: #d9d9d9;
+  --color-gray3: #6b7280;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
-  background-color: var(--color-bg-light);
-  color: var(--color-gray3);
-  font-family: var(--font-sans);
-  line-height: 1.6;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f0faf6;
+  color: #111;
 }
 
-body,
-button,
-input,
-textarea,
-select {
-  font: inherit;
+a {
+  color: #0b6e4f;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading);
-  color: var(--color-gray3);
-  margin: 0;
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-}
-
-h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-}
-
-h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  line-height: 1.15;
-}
-
-h4 {
-  font-size: 1.125rem;
-  line-height: 1.4;
-}
-
-p {
-  margin: 0;
-}
-
-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-}
-
-#root {
-  width: min(1126px, 100%);
+.page {
+  max-width: 900px;
   margin: 0 auto;
-  min-height: 100vh;
+  padding: 16px;
+}
+
+.nav {
+  background: #0b6e4f;
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.box {
+  background: white;
+  border: 1px solid #d9d9d9;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.btn {
+  background: #0b6e4f;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.btn-red {
+  background: #e63946;
+}
+
+.btn-gray {
+  background: #6b7280;
+}
+
+.error {
+  background: #fee2e2;
+  color: #e63946;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #e63946;
+}
+
+.ok {
+  background: #dcfce7;
+  color: #166534;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.warn {
+  background: #f4a261;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.ticket {
+  font-size: 28px;
+  font-weight: bold;
+  color: #0b6e4f;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.badge-waiting {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-progress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-noshow {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-skipped {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th,
+td {
+  border: 1px solid #d9d9d9;
+  padding: 8px;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  background: #f5f5f5;
 }

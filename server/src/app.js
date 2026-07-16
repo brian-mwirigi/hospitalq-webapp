@@ -5,7 +5,9 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.routes.js';
 import queueRoutes from './routes/queue.routes.js';
 import departmentRoutes from './routes/department.routes.js';
+import { requireDb } from './middleware/db.middleware.js';
 import { notFound, errorHandler } from './middleware/error.middleware.js';
+import { isDbReady } from './config/db.js';
 
 export function createApp(ioHolder) {
   const app = express();
@@ -28,11 +30,15 @@ export function createApp(ioHolder) {
   app.get('/', (req, res) => {
     res.json({
       success: true,
-      data: { name: 'HospitalQ API' },
-      message: 'HospitalQ API is running',
+      data: {
+        name: 'HospitalQ API',
+        dbConnected: isDbReady(),
+      },
+      message: isDbReady() ? 'HospitalQ API is running' : 'API running but MongoDB is NOT connected',
     });
   });
 
+  app.use('/api', requireDb);
   app.use('/api/auth', authRoutes);
   app.use('/api/queue', queueRoutes);
   app.use('/api/departments', departmentRoutes);

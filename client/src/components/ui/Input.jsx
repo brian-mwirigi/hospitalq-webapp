@@ -1,11 +1,9 @@
-export function Input({ label, className = '', ...props }) {
+export function Input({ label, error, ...props }) {
   return (
-    <label className="block w-full">
-      {label && <span className="mb-2 block text-sm font-medium text-gray3">{label}</span>}
-      <input
-        className={`w-full rounded-xl border border-gray2 bg-white px-4 py-3 text-sm text-gray3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${className}`}
-        {...props}
-      />
+    <label>
+      {label}
+      <input {...props} />
+      {error ? <div className="error">{error}</div> : null}
     </label>
   )
 }
