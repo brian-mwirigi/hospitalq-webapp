@@ -1,6 +1,6 @@
 # HospitalQ (class project)
 
-Simple hospital queue web app (MERN).
+ hospital queue web app (MERN).
 
 ## What it does
 - Reception adds patients to a department queue
