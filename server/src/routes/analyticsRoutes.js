@@ -3,13 +3,12 @@ import {
   getBusyOverview,
   suggestRedirect,
   getSmsLogs,
-} from '../controllers/analytics.controller.js';
-import { protect } from '../middleware/auth.middleware.js';
-import { authorize } from '../middleware/role.middleware.js';
+} from '../controllers/analyticsController.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { authorize } from '../middleware/roleMiddleware.js';
 
 const router = express.Router();
 
-// patient page can read redirect suggestion (no login)
 router.get('/redirect/:deptId', suggestRedirect);
 
 router.get(

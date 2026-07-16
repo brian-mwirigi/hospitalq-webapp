@@ -1,4 +1,4 @@
-import Department from '../models/Department.model.js';
+import Department from '../models/Department.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { generateDeptQR } from '../utils/generateQR.js';
 

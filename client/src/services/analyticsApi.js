@@ -15,10 +15,10 @@ export async function getSmsLogs() {
   return response.data.data;
 }
 
-const analyticsService = {
+const analyticsApi = {
   getOverview,
   getRedirectSuggestion,
   getSmsLogs,
 };
 
-export default analyticsService;
+export default analyticsApi;

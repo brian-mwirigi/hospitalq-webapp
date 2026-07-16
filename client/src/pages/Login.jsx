@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { PageWrapper } from '../components/layout/PageWrapper'
+import { Layout } from '../components/layout/Layout'
 import { Input } from '../components/ui/Input'
 import { Button } from '../components/ui/Button'
-import { ErrorBanner } from '../components/ui/ErrorBanner'
+import { ErrorBox } from '../components/ui/ErrorBox'
 
-export default function LoginPage() {
+export default function Login() {
   const { login, isAuthed, user } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('reception@hospitalq.com')
@@ -42,12 +42,12 @@ export default function LoginPage() {
   }
 
   return (
-    <PageWrapper>
+    <Layout>
       <h1>Login</h1>
       <p className="muted">Use a seeded account (no register page).</p>
 
       <form className="box" onSubmit={handleSubmit} style={{ maxWidth: 420 }}>
-        <ErrorBanner message={error} />
+        <ErrorBox message={error} />
         <Input
           label="Email"
           type="email"
@@ -75,6 +75,6 @@ export default function LoginPage() {
           <li>admin@hospitalq.com / password123</li>
         </ul>
       </div>
-    </PageWrapper>
+    </Layout>
   )
 }

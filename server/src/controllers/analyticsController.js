@@ -1,6 +1,6 @@
-import QueueEntry from '../models/QueueEntry.model.js';
-import Department from '../models/Department.model.js';
-import SmsLog from '../models/SmsLog.model.js';
+import QueueEntry from '../models/QueueEntry.js';
+import Department from '../models/Department.js';
+import SmsLog from '../models/SmsLog.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { getStartOfDayUTC } from '../utils/ticketFormatter.js';
 
@@ -13,7 +13,6 @@ async function countWaiting(departmentId) {
   });
 }
 
-// "AI" wait = avg of last consults * people ahead (simple school formula)
 export async function getAvgConsultMinutes(departmentId) {
   const queueDate = getStartOfDayUTC();
   const done = await QueueEntry.find({

@@ -8,13 +8,12 @@ import {
   skipPatient,
   removePatient,
   getStats,
-} from '../controllers/queue.controller.js';
-import { protect } from '../middleware/auth.middleware.js';
-import { authorize } from '../middleware/role.middleware.js';
+} from '../controllers/queueController.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { authorize } from '../middleware/roleMiddleware.js';
 
 const router = express.Router();
 
-// public so patient board can show wait estimate
 router.get('/:deptId/stats', getStats);
 router.get('/:deptId', getQueue);
 router.post('/', protect, authorize('receptionist', 'admin'), addPatient);

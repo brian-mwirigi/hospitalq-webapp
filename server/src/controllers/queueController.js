@@ -1,6 +1,6 @@
-import QueueEntry from '../models/QueueEntry.model.js';
-import DailyCounter from '../models/DailyCounter.model.js';
-import Department from '../models/Department.model.js';
+import QueueEntry from '../models/QueueEntry.js';
+import DailyCounter from '../models/DailyCounter.js';
+import Department from '../models/Department.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { getTodayDateString, getStartOfDayUTC } from '../utils/ticketFormatter.js';
 import {
@@ -9,7 +9,7 @@ import {
   ticketCalledMessage,
   ticketDoneMessage,
 } from '../utils/sendSms.js';
-import { getAvgConsultMinutes } from './analytics.controller.js';
+import { getAvgConsultMinutes } from './analyticsController.js';
 
 async function getNextTicketNumber(departmentId) {
   const date = getTodayDateString();

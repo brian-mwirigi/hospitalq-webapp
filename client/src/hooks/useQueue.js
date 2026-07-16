@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import queueService from '../services/queue.service.js';
+import queueApi from '../services/queueApi.js';
 
 export function useQueue(deptId) {
   return useQuery({
     queryKey: ['queue', deptId],
-    queryFn: () => queueService.getQueue(deptId),
+    queryFn: () => queueApi.getQueue(deptId),
     enabled: !!deptId,
   });
 }
@@ -12,7 +12,7 @@ export function useQueue(deptId) {
 export function useQueueStats(deptId) {
   return useQuery({
     queryKey: ['queue', deptId, 'stats'],
-    queryFn: () => queueService.getStats(deptId),
+    queryFn: () => queueApi.getStats(deptId),
     enabled: !!deptId,
   });
 }
@@ -30,7 +30,7 @@ export function useAddPatient(deptId) {
   const refreshQueue = useRefreshQueue();
 
   return useMutation({
-    mutationFn: (patientData) => queueService.addPatient(patientData),
+    mutationFn: (patientData) => queueApi.addPatient(patientData),
     onSuccess: () => {
       refreshQueue(deptId);
     },
@@ -41,7 +41,7 @@ export function useMarkDone(deptId) {
   const refreshQueue = useRefreshQueue();
 
   return useMutation({
-    mutationFn: (entryId) => queueService.markDone(entryId),
+    mutationFn: (entryId) => queueApi.markDone(entryId),
     onSuccess: () => {
       refreshQueue(deptId);
     },
@@ -52,7 +52,7 @@ export function useMarkNoShow(deptId) {
   const refreshQueue = useRefreshQueue();
 
   return useMutation({
-    mutationFn: (entryId) => queueService.markNoShow(entryId),
+    mutationFn: (entryId) => queueApi.markNoShow(entryId),
     onSuccess: () => {
       refreshQueue(deptId);
     },
@@ -63,7 +63,7 @@ export function useMarkInProgress(deptId) {
   const refreshQueue = useRefreshQueue();
 
   return useMutation({
-    mutationFn: (entryId) => queueService.markInProgress(entryId),
+    mutationFn: (entryId) => queueApi.markInProgress(entryId),
     onSuccess: () => {
       refreshQueue(deptId);
     },
@@ -74,7 +74,7 @@ export function useSkipPatient(deptId) {
   const refreshQueue = useRefreshQueue();
 
   return useMutation({
-    mutationFn: (entryId) => queueService.skipPatient(entryId),
+    mutationFn: (entryId) => queueApi.skipPatient(entryId),
     onSuccess: () => {
       refreshQueue(deptId);
     },
@@ -85,7 +85,7 @@ export function useRemovePatient(deptId) {
   const refreshQueue = useRefreshQueue();
 
   return useMutation({
-    mutationFn: (entryId) => queueService.removePatient(entryId),
+    mutationFn: (entryId) => queueApi.removePatient(entryId),
     onSuccess: () => {
       refreshQueue(deptId);
     },

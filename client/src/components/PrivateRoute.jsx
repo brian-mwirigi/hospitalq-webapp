@@ -1,14 +1,14 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { LoadingSpinner } from './ui/LoadingSpinner'
+import { Spinner } from './ui/Spinner'
 
-export function ProtectedRoute({ children, roles }) {
+export function PrivateRoute({ children, roles }) {
   const { isAuthed, user, isLoadingUser, token } = useAuth()
 
   if (token && isLoadingUser) {
     return (
       <div className="page">
-        <LoadingSpinner />
+        <Spinner />
       </div>
     )
   }

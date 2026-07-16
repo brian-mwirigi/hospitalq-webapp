@@ -1,5 +1,5 @@
 import { formatTicketNumber } from '../../utils/formatters'
 
-export function TicketDisplay({ ticketNumber }) {
+export function Ticket({ ticketNumber }) {
   return <div className="ticket">{formatTicketNumber(ticketNumber)}</div>
 }

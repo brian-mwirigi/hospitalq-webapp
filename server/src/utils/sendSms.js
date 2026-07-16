@@ -1,7 +1,6 @@
-import SmsLog from '../models/SmsLog.model.js';
+import SmsLog from '../models/SmsLog.js';
 import { formatTicket } from './ticketFormatter.js';
 
-// fake SMS for school project (no Twilio money needed)
 export async function sendMockSms({ to, message, relatedTicket = null, department = null }) {
   if (!to) return null;
 

@@ -1,63 +1,72 @@
-import { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import useAuthStore from '../store/authStore.js';
-import authService from '../services/auth.service.js';
+import { useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import useAuthStore from '../store/auth.js'
+import authApi from '../services/authApi.js'
 
 export function useAuth() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  const user = useAuthStore((state) => state.user);
-  const token = useAuthStore((state) => state.token);
-  const isAuthed = useAuthStore((state) => state.isAuthed);
-  const loginAction = useAuthStore((state) => state.login);
-  const logoutAction = useAuthStore((state) => state.logout);
-  const setUser = useAuthStore((state) => state.setUser);
+  const user = useAuthStore((s) => s.user)
+  const token = useAuthStore((s) => s.token)
+  const isAuthed = useAuthStore((s) => s.isAuthed)
+  const loginAction = useAuthStore((s) => s.login)
+  const logoutAction = useAuthStore((s) => s.logout)
+  const setUser = useAuthStore((s) => s.setUser)
+
+  let shouldFetchMe = false
+  if (token && !user) {
+    shouldFetchMe = true
+  }
 
   const meQuery = useQuery({
     queryKey: ['auth', 'me'],
-    queryFn: authService.getMe,
-    enabled: !!token && !user,
+    queryFn: authApi.getMe,
+    enabled: shouldFetchMe,
     retry: false,
-  });
+  })
 
   useEffect(() => {
     if (meQuery.data && meQuery.data.user) {
-      setUser(meQuery.data.user);
+      setUser(meQuery.data.user)
     }
-  }, [meQuery.data, setUser]);
+  }, [meQuery.data])
 
-  // only clear login if token is actually invalid
   useEffect(() => {
-    if (meQuery.isError && meQuery.error?.response?.status === 401) {
-      logoutAction();
+    if (meQuery.isError && meQuery.error && meQuery.error.response) {
+      if (meQuery.error.response.status === 401) {
+        logoutAction()
+      }
     }
-  }, [meQuery.isError, meQuery.error, logoutAction]);
+  }, [meQuery.isError])
 
   async function login(email, password) {
-    const data = await authService.login(email, password);
-    loginAction(data.user, data.token);
-    queryClient.setQueryData(['auth', 'me'], { user: data.user });
-    return data;
+    const data = await authApi.login(email, password)
+    loginAction(data.user, data.token)
+    queryClient.setQueryData(['auth', 'me'], { user: data.user })
+    return data
   }
 
   async function logout() {
     try {
-      await authService.logout();
-    } catch (error) {
-      // ignore
-    }
-    logoutAction();
-    queryClient.removeQueries({ queryKey: ['auth', 'me'] });
+      await authApi.logout()
+    } catch (e) {}
+    logoutAction()
+    queryClient.removeQueries({ queryKey: ['auth', 'me'] })
+  }
+
+  let loadingUser = false
+  if (token && !user && meQuery.isLoading) {
+    loadingUser = true
   }
 
   return {
-    user,
-    token,
-    isAuthed,
-    isLoadingUser: meQuery.isLoading && !!token && !user,
-    login,
-    logout,
-  };
+    user: user,
+    token: token,
+    isAuthed: isAuthed,
+    isLoadingUser: loadingUser,
+    login: login,
+    logout: logout,
+  }
 }
 
-export default useAuth;
+export default useAuth

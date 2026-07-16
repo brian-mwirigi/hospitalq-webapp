@@ -10,9 +10,9 @@ export async function getBySlug(slug) {
   return response.data.data;
 }
 
-const departmentService = {
+const deptApi = {
   getAll,
   getBySlug,
 };
 
-export default departmentService;
+export default deptApi;

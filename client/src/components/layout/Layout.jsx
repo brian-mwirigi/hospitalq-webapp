@@ -1,6 +1,6 @@
 import { Navbar } from './Navbar'
 
-export function PageWrapper({ children }) {
+export function Layout({ children }) {
   return (
     <div>
       <Navbar />

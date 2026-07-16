@@ -4,7 +4,6 @@ const smsLogSchema = new mongoose.Schema(
   {
     to: { type: String, required: true },
     message: { type: String, required: true },
-    // student project: we fake SMS and just save it
     status: {
       type: String,
       enum: ['mock-sent', 'failed'],

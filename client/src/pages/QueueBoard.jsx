@@ -1,46 +1,69 @@
 import { Link, useParams } from 'react-router-dom'
-import { useDepartmentBySlug } from '../hooks/useDepartments'
+import { useDeptBySlug } from '../hooks/useDepts'
 import { useQueue, useQueueStats } from '../hooks/useQueue'
-import { useRedirectSuggestion } from '../hooks/useAnalytics'
+import { useRedirectSuggestion } from '../hooks/useStats'
 import { useSocket } from '../hooks/useSocket'
 import {
   estimateWaitMinutes,
   formatPatientNamePrivate,
   formatTicketNumber,
 } from '../utils/formatters'
-import { LoadingSpinner } from '../components/ui/LoadingSpinner'
-import { ErrorBanner } from '../components/ui/ErrorBanner'
-import { ReconnectBanner } from '../components/ui/ReconnectBanner'
-import { TicketDisplay } from '../components/ui/TicketDisplay'
+import { Spinner } from '../components/ui/Spinner'
+import { ErrorBox } from '../components/ui/ErrorBox'
+import { ReconnectBar } from '../components/ui/ReconnectBar'
+import { Ticket } from '../components/ui/Ticket'
 import { Badge } from '../components/ui/Badge'
 
-export default function PatientQueuePage() {
-  const { deptSlug } = useParams()
-  const { data: department, isLoading: loadingDept, error } = useDepartmentBySlug(deptSlug)
-  const deptId = department?._id
+export default function QueueBoard() {
+  const params = useParams()
+  const deptSlug = params.deptSlug
 
-  const { data: queue = [], isLoading } = useQueue(deptId)
-  const { data: stats } = useQueueStats(deptId)
-  const { data: redirectInfo } = useRedirectSuggestion(deptId)
-  const { isReconnecting } = useSocket(deptId)
+  const deptQuery = useDeptBySlug(deptSlug)
+  const department = deptQuery.data
+  const deptId = department ? department._id : null
 
-  const current = queue.find((e) => e.status === 'in-progress') || null
-  const waiting = queue.filter((e) => e.status === 'waiting')
-  const avg = stats?.avgWaitMinutes || 10
-  const predicted = stats?.predictedWaitMinutes ?? estimateWaitMinutes(waiting.length, avg)
+  const queueQuery = useQueue(deptId)
+  const queue = queueQuery.data || []
+  const statsQuery = useQueueStats(deptId)
+  const stats = statsQuery.data
+  const redirectQuery = useRedirectSuggestion(deptId)
+  const redirectInfo = redirectQuery.data
+  const socketStuff = useSocket(deptId)
 
-  if (loadingDept) {
+  let current = null
+  let waiting = []
+
+  for (let i = 0; i < queue.length; i++) {
+    if (queue[i].status === 'in-progress') {
+      current = queue[i]
+    }
+    if (queue[i].status === 'waiting') {
+      waiting.push(queue[i])
+    }
+  }
+
+  let avg = 10
+  if (stats && stats.avgWaitMinutes) {
+    avg = stats.avgWaitMinutes
+  }
+
+  let predicted = estimateWaitMinutes(waiting.length, avg)
+  if (stats && stats.predictedWaitMinutes !== undefined) {
+    predicted = stats.predictedWaitMinutes
+  }
+
+  if (deptQuery.isLoading) {
     return (
       <div className="page">
-        <LoadingSpinner />
+        <Spinner />
       </div>
     )
   }
 
-  if (error || !department) {
+  if (deptQuery.error || !department) {
     return (
       <div className="page">
-        <ErrorBanner message="Department not found" />
+        <ErrorBox message="Department not found" />
         <Link to="/">Back</Link>
       </div>
     )
@@ -54,7 +77,7 @@ export default function PatientQueuePage() {
       </div>
 
       <div className="page">
-        {isReconnecting ? <ReconnectBanner /> : null}
+        {socketStuff.isReconnecting ? <ReconnectBar /> : null}
 
         <div className="box" style={{ textAlign: 'center' }}>
           <p>People waiting</p>
@@ -62,17 +85,17 @@ export default function PatientQueuePage() {
           <p>
             <b>Predicted wait: ~{predicted} min</b>
           </p>
-          <small style={{ color: '#6b7280' }}>
-            simple estimate = waiting × avg last visits ({avg} min)
+          <small className="muted">
+            estimate = waiting x avg last visits ({avg} min)
           </small>
         </div>
 
-        {redirectInfo?.suggestRedirect && redirectInfo.quieterDepartment ? (
+        {redirectInfo && redirectInfo.suggestRedirect && redirectInfo.quieterDepartment ? (
           <div className="box box-warn">
             <b>This department is busy</b>
             <p>
               Less busy:{' '}
-              <Link to={`/queue/${redirectInfo.quieterDepartment.slug}`}>
+              <Link to={'/queue/' + redirectInfo.quieterDepartment.slug}>
                 {redirectInfo.quieterDepartment.name}
               </Link>{' '}
               ({redirectInfo.quieterDepartment.waiting} waiting)
@@ -85,7 +108,7 @@ export default function PatientQueuePage() {
           <h3>Now serving</h3>
           {current ? (
             <>
-              <TicketDisplay ticketNumber={current.ticketNumber} />
+              <Ticket ticketNumber={current.ticketNumber} />
               <p>{formatPatientNamePrivate(current.patientName)}</p>
               <Badge status="in-progress" />
             </>
@@ -95,8 +118,8 @@ export default function PatientQueuePage() {
         </div>
 
         <h3>Waiting list</h3>
-        {isLoading ? (
-          <LoadingSpinner />
+        {queueQuery.isLoading ? (
+          <Spinner />
         ) : waiting.length === 0 ? (
           <p>Empty</p>
         ) : (
@@ -109,13 +132,15 @@ export default function PatientQueuePage() {
               </tr>
             </thead>
             <tbody>
-              {waiting.map((entry, i) => (
-                <tr key={entry._id}>
-                  <td>{i + 1}</td>
-                  <td>{formatTicketNumber(entry.ticketNumber)}</td>
-                  <td>{formatPatientNamePrivate(entry.patientName)}</td>
-                </tr>
-              ))}
+              {waiting.map(function (entry, i) {
+                return (
+                  <tr key={entry._id}>
+                    <td>{i + 1}</td>
+                    <td>{formatTicketNumber(entry.ticketNumber)}</td>
+                    <td>{formatPatientNamePrivate(entry.patientName)}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         )}

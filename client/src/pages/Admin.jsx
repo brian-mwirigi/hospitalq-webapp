@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useDepartments } from '../hooks/useDepartments'
-import { useBusyOverview, useSmsLogs } from '../hooks/useAnalytics'
+import { useDepts } from '../hooks/useDepts'
+import { useBusyOverview, useSmsLogs } from '../hooks/useStats'
 import api from '../services/api'
-import { PageWrapper } from '../components/layout/PageWrapper'
+import { Layout } from '../components/layout/Layout'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
-import { LoadingSpinner } from '../components/ui/LoadingSpinner'
-import { ErrorBanner } from '../components/ui/ErrorBanner'
+import { Spinner } from '../components/ui/Spinner'
+import { ErrorBox } from '../components/ui/ErrorBox'
 
-export default function AdminPage() {
+export default function Admin() {
   const queryClient = useQueryClient()
-  const { data: departments = [], isLoading } = useDepartments()
+  const { data: departments = [], isLoading } = useDepts()
   const { data: overview, isLoading: loadingOverview } = useBusyOverview()
   const { data: smsLogs = [], isLoading: loadingSms } = useSmsLogs()
   const [name, setName] = useState('')
@@ -59,13 +59,13 @@ export default function AdminPage() {
   }
 
   return (
-    <PageWrapper>
+    <Layout>
       <h1>Admin</h1>
 
       <div className="box">
         <h3>Today overview</h3>
         {loadingOverview ? (
-          <LoadingSpinner />
+          <Spinner />
         ) : (
           <>
             <p>
@@ -110,7 +110,7 @@ export default function AdminPage() {
         <h3>Mock SMS log</h3>
         <p style={{ fontSize: 13 }}>School version: SMS is saved here, not really sent.</p>
         {loadingSms ? (
-          <LoadingSpinner />
+          <Spinner />
         ) : smsLogs.length === 0 ? (
           <p>No SMS yet. Add a patient with a phone number.</p>
         ) : (
@@ -139,7 +139,7 @@ export default function AdminPage() {
 
       <form className="box" onSubmit={handleCreate}>
         <h3>Add department</h3>
-        <ErrorBanner message={error} />
+        <ErrorBox message={error} />
         {msg ? <div className="ok">{msg}</div> : null}
         <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required />
         <Input label="Slug" value={slug} onChange={(e) => setSlug(e.target.value)} required />
@@ -153,7 +153,7 @@ export default function AdminPage() {
 
       <h2>Departments</h2>
       {isLoading ? (
-        <LoadingSpinner />
+        <Spinner />
       ) : (
         <table>
           <thead>
@@ -178,6 +178,6 @@ export default function AdminPage() {
           </tbody>
         </table>
       )}
-    </PageWrapper>
+    </Layout>
   )
 }

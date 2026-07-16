@@ -1,46 +1,46 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import ReceptionistPage from './pages/ReceptionistPage'
-import DoctorPage from './pages/DoctorPage'
-import PatientQueuePage from './pages/PatientQueuePage'
-import AdminPage from './pages/AdminPage'
-import NotFoundPage from './pages/NotFoundPage'
+import { PrivateRoute } from './components/PrivateRoute'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Reception from './pages/Reception'
+import Doctor from './pages/Doctor'
+import QueueBoard from './pages/QueueBoard'
+import Admin from './pages/Admin'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/queue/:deptSlug" element={<PatientQueuePage />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/queue/:deptSlug" element={<QueueBoard />} />
         <Route
           path="/receptionist"
           element={
-            <ProtectedRoute roles={['receptionist', 'admin']}>
-              <ReceptionistPage />
-            </ProtectedRoute>
+            <PrivateRoute roles={['receptionist', 'admin']}>
+              <Reception />
+            </PrivateRoute>
           }
         />
         <Route
           path="/doctor"
           element={
-            <ProtectedRoute roles={['doctor', 'admin']}>
-              <DoctorPage />
-            </ProtectedRoute>
+            <PrivateRoute roles={['doctor', 'admin']}>
+              <Doctor />
+            </PrivateRoute>
           }
         />
         <Route
           path="/admin"
           element={
-            <ProtectedRoute roles={['admin']}>
-              <AdminPage />
-            </ProtectedRoute>
+            <PrivateRoute roles={['admin']}>
+              <Admin />
+            </PrivateRoute>
           }
         />
         <Route path="/home" element={<Navigate to="/" replace />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

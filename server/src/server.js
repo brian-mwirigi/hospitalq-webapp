@@ -32,7 +32,6 @@ const startServer = async () => {
     }
   });
 
-  // keep trying every 15s if atlas drops / ip blocks
   setInterval(async () => {
     if (!isDbReady()) {
       console.log('Retrying MongoDB connection...');

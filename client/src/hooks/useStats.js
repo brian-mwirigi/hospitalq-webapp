@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import analyticsService from '../services/analytics.service.js';
+import analyticsApi from '../services/analyticsApi.js';
 
 export function useBusyOverview(enabled = true) {
   return useQuery({
     queryKey: ['analytics', 'overview'],
-    queryFn: analyticsService.getOverview,
+    queryFn: analyticsApi.getOverview,
     enabled,
   });
 }
@@ -12,7 +12,7 @@ export function useBusyOverview(enabled = true) {
 export function useRedirectSuggestion(deptId) {
   return useQuery({
     queryKey: ['analytics', 'redirect', deptId],
-    queryFn: () => analyticsService.getRedirectSuggestion(deptId),
+    queryFn: () => analyticsApi.getRedirectSuggestion(deptId),
     enabled: !!deptId,
     refetchInterval: 15000,
   });
@@ -21,7 +21,7 @@ export function useRedirectSuggestion(deptId) {
 export function useSmsLogs(enabled = true) {
   return useQuery({
     queryKey: ['analytics', 'sms'],
-    queryFn: analyticsService.getSmsLogs,
+    queryFn: analyticsApi.getSmsLogs,
     enabled,
   });
 }

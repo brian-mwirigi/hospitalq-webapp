@@ -1,7 +1,7 @@
 import { Badge } from '../ui/Badge'
-import { TicketDisplay } from '../ui/TicketDisplay'
+import { Ticket } from '../ui/Ticket'
 
-export function QueueCard({ entry, privateName = false, actions }) {
+export function PatientCard({ entry, privateName = false, actions }) {
   if (!entry) return null
 
   let name = entry.patientName || ''
@@ -14,7 +14,7 @@ export function QueueCard({ entry, privateName = false, actions }) {
     <div className="box">
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <div>
-          <TicketDisplay ticketNumber={entry.ticketNumber} />
+          <Ticket ticketNumber={entry.ticketNumber} />
           <div>{name}</div>
           <div style={{ marginTop: 4 }}>
             <Badge status={entry.status} />{' '}

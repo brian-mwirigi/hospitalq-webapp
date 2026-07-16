@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { useDepartments } from '../hooks/useDepartments'
-import { PageWrapper } from '../components/layout/PageWrapper'
-import { LoadingSpinner } from '../components/ui/LoadingSpinner'
-import { ErrorBanner } from '../components/ui/ErrorBanner'
+import { useDepts } from '../hooks/useDepts'
+import { Layout } from '../components/layout/Layout'
+import { Spinner } from '../components/ui/Spinner'
+import { ErrorBox } from '../components/ui/ErrorBox'
 
-export default function HomePage() {
+export default function Home() {
   const { isAuthed, user } = useAuth()
-  const { data: departments = [], isLoading, error } = useDepartments()
+  const { data: departments = [], isLoading, error } = useDepts()
 
   let staffPath = '/receptionist'
   if (user?.role === 'doctor') staffPath = '/doctor'
@@ -18,7 +18,7 @@ export default function HomePage() {
     (error ? 'Could not load departments. Is MongoDB connected?' : '')
 
   return (
-    <PageWrapper>
+    <Layout>
       <h1>HospitalQ</h1>
       <p className="muted">Hospital queue system — class project</p>
 
@@ -46,9 +46,9 @@ export default function HomePage() {
       </div>
 
       <h2>Patient boards</h2>
-      <ErrorBanner message={loadError} />
+      <ErrorBox message={loadError} />
       {isLoading ? (
-        <LoadingSpinner />
+        <Spinner />
       ) : departments.length === 0 && !error ? (
         <p className="muted">No departments yet. Run seed in the server folder.</p>
       ) : (
@@ -63,6 +63,6 @@ export default function HomePage() {
           ))}
         </ul>
       )}
-    </PageWrapper>
+    </Layout>
   )
 }
