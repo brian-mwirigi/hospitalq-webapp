@@ -3,6 +3,13 @@ import DailyCounter from '../models/DailyCounter.model.js';
 import Department from '../models/Department.model.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { getTodayDateString, getStartOfDayUTC } from '../utils/ticketFormatter.js';
+import {
+  sendMockSms,
+  ticketJoinedMessage,
+  ticketCalledMessage,
+  ticketDoneMessage,
+} from '../utils/sendSms.js';
+import { getAvgConsultMinutes } from './analytics.controller.js';
 
 async function getNextTicketNumber(departmentId) {
   const date = getTodayDateString();
@@ -109,6 +116,26 @@ export const addPatient = asyncHandler(async (req, res) => {
     .populate('department', 'name slug')
     .populate('doctor', 'name email');
 
+  if (patientPhone) {
+    const avg = await getAvgConsultMinutes(department);
+    const waitingCount = await QueueEntry.countDocuments({
+      department,
+      queueDate,
+      status: 'waiting',
+    });
+    await sendMockSms({
+      to: patientPhone,
+      message: ticketJoinedMessage(
+        patientName.trim(),
+        ticketNumber,
+        dept.name,
+        Math.max(0, waitingCount - 1) * avg
+      ),
+      relatedTicket: ticketNumber,
+      department,
+    });
+  }
+
   await emitQueueUpdated(req, department);
 
   if (req.io) {
@@ -120,7 +147,9 @@ export const addPatient = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     data: populated,
-    message: 'Patient added to queue',
+    message: patientPhone
+      ? 'Patient added to queue (mock SMS saved)'
+      : 'Patient added to queue',
   });
 });
 
@@ -141,6 +170,15 @@ export const markDone = asyncHandler(async (req, res) => {
     entry.doctor = req.user._id;
   }
   await entry.save();
+
+  if (entry.patientPhone) {
+    await sendMockSms({
+      to: entry.patientPhone,
+      message: ticketDoneMessage(entry.ticketNumber),
+      relatedTicket: entry.ticketNumber,
+      department: entry.department,
+    });
+  }
 
   const queueDate = getStartOfDayUTC();
   const nextEntry = await QueueEntry.findOne({
@@ -223,6 +261,16 @@ export const markInProgress = asyncHandler(async (req, res) => {
   entry.calledAt = new Date();
   entry.doctor = req.user._id;
   await entry.save();
+
+  const dept = await Department.findById(entry.department);
+  if (entry.patientPhone) {
+    await sendMockSms({
+      to: entry.patientPhone,
+      message: ticketCalledMessage(entry.ticketNumber, dept?.name || 'clinic'),
+      relatedTicket: entry.ticketNumber,
+      department: entry.department,
+    });
+  }
 
   await emitQueueUpdated(req, entry.department);
 
@@ -309,20 +357,9 @@ export const getStats = asyncHandler(async (req, res) => {
   const waiting = entries.filter((e) => e.status === 'waiting').length;
   const done = entries.filter((e) => e.status === 'done').length;
   const inProgress = entries.filter((e) => e.status === 'in-progress').length;
+  const noShow = entries.filter((e) => e.status === 'no-show').length;
 
-  const completedWithTimes = entries.filter(
-    (e) => e.status === 'done' && e.calledAt && e.completedAt
-  );
-
-  let avgWaitMinutes = 10;
-  if (completedWithTimes.length > 0) {
-    const lastTen = completedWithTimes.slice(-10);
-    const totalMinutes = lastTen.reduce((sum, e) => {
-      const mins = (new Date(e.completedAt) - new Date(e.calledAt)) / 60000;
-      return sum + mins;
-    }, 0);
-    avgWaitMinutes = Math.round(totalMinutes / lastTen.length) || 10;
-  }
+  const avgWaitMinutes = await getAvgConsultMinutes(deptId);
 
   res.json({
     success: true,
@@ -331,7 +368,10 @@ export const getStats = asyncHandler(async (req, res) => {
       waiting,
       done,
       inProgress,
+      noShow,
+      walkOuts: noShow,
       avgWaitMinutes,
+      predictedWaitMinutes: waiting * avgWaitMinutes,
     },
   });
 });

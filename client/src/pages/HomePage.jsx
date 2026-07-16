@@ -20,18 +20,29 @@ export default function HomePage() {
   return (
     <PageWrapper>
       <h1>HospitalQ</h1>
-      <p>Hospital queue system (class project)</p>
+      <p className="muted">Hospital queue system — class project</p>
 
       <div className="box">
         {isAuthed ? (
           <p>
-            Logged in as {user.name}. <Link to={staffPath}>Go to my page</Link>
+            Hi {user.name}. <Link to={staffPath}>Open my page</Link>
           </p>
         ) : (
           <p>
-            Staff: <Link to="/login">Login</Link>
+            Staff login: <Link to="/login">Login</Link>
           </p>
         )}
+      </div>
+
+      <div className="box box-plain" style={{ fontSize: 14 }}>
+        <h3>What this app does</h3>
+        <ul style={{ margin: 0, paddingLeft: 18 }}>
+          <li>Live queue for reception + doctor</li>
+          <li>Patient board with predicted wait</li>
+          <li>Suggests quieter department when busy</li>
+          <li>Mock SMS if phone is entered</li>
+          <li>Admin stats + walk-outs</li>
+        </ul>
       </div>
 
       <h2>Patient boards</h2>
@@ -39,12 +50,15 @@ export default function HomePage() {
       {isLoading ? (
         <LoadingSpinner />
       ) : departments.length === 0 && !error ? (
-        <p>No departments yet. Run: npm run seed (in server folder)</p>
+        <p className="muted">No departments yet. Run seed in the server folder.</p>
       ) : (
-        <ul>
+        <ul className="dept-list">
           {departments.map((d) => (
             <li key={d._id}>
-              <Link to={`/queue/${d.slug}`}>{d.name}</Link> ({d.slug})
+              <Link to={`/queue/${d.slug}`}>
+                <b>{d.name}</b>
+                <div className="muted">/queue/{d.slug}</div>
+              </Link>
             </li>
           ))}
         </ul>

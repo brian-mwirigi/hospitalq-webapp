@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.routes.js';
 import queueRoutes from './routes/queue.routes.js';
 import departmentRoutes from './routes/department.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 import { requireDb } from './middleware/db.middleware.js';
 import { notFound, errorHandler } from './middleware/error.middleware.js';
 import { isDbReady } from './config/db.js';
@@ -42,6 +43,7 @@ export function createApp(ioHolder) {
   app.use('/api/auth', authRoutes);
   app.use('/api/queue', queueRoutes);
   app.use('/api/departments', departmentRoutes);
+  app.use('/api/analytics', analyticsRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

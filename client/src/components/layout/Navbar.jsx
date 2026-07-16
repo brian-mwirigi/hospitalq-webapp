@@ -7,10 +7,17 @@ export function Navbar() {
   return (
     <div className="nav">
       <Link to="/">HospitalQ</Link>
-      <div className="row">
+      <div className="nav-links">
         {isAuthed && user ? (
           <>
-            <span style={{ fontSize: 14 }}>
+            {user.role === 'receptionist' || user.role === 'admin' ? (
+              <Link to="/receptionist">Reception</Link>
+            ) : null}
+            {user.role === 'doctor' || user.role === 'admin' ? (
+              <Link to="/doctor">Doctor</Link>
+            ) : null}
+            {user.role === 'admin' ? <Link to="/admin">Admin</Link> : null}
+            <span style={{ opacity: 0.9 }}>
               {user.name} ({user.role})
             </span>
             <button className="btn btn-gray" type="button" onClick={logout}>

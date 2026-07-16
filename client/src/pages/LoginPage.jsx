@@ -44,8 +44,9 @@ export default function LoginPage() {
   return (
     <PageWrapper>
       <h1>Login</h1>
-      <p>There is no register page. Use the seeded accounts.</p>
-      <form className="box" onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
+      <p className="muted">Use a seeded account (no register page).</p>
+
+      <form className="box" onSubmit={handleSubmit} style={{ maxWidth: 420 }}>
         <ErrorBanner message={error} />
         <Input
           label="Email"
@@ -65,9 +66,10 @@ export default function LoginPage() {
           {loading ? 'Please wait...' : 'Login'}
         </Button>
       </form>
-      <div className="box" style={{ fontSize: 13 }}>
-        <b>Demo accounts</b>
-        <ul>
+
+      <div className="box box-plain" style={{ fontSize: 13, maxWidth: 420 }}>
+        <h3>Demo accounts</h3>
+        <ul style={{ margin: 0, paddingLeft: 18 }}>
           <li>reception@hospitalq.com / password123</li>
           <li>doctor@hospitalq.com / password123</li>
           <li>admin@hospitalq.com / password123</li>

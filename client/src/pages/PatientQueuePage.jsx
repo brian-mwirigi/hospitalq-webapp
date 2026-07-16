@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useDepartmentBySlug } from '../hooks/useDepartments'
-import { useQueue } from '../hooks/useQueue'
+import { useQueue, useQueueStats } from '../hooks/useQueue'
+import { useRedirectSuggestion } from '../hooks/useAnalytics'
 import { useSocket } from '../hooks/useSocket'
 import {
   estimateWaitMinutes,
@@ -19,10 +20,14 @@ export default function PatientQueuePage() {
   const deptId = department?._id
 
   const { data: queue = [], isLoading } = useQueue(deptId)
+  const { data: stats } = useQueueStats(deptId)
+  const { data: redirectInfo } = useRedirectSuggestion(deptId)
   const { isReconnecting } = useSocket(deptId)
 
   const current = queue.find((e) => e.status === 'in-progress') || null
   const waiting = queue.filter((e) => e.status === 'waiting')
+  const avg = stats?.avgWaitMinutes || 10
+  const predicted = stats?.predictedWaitMinutes ?? estimateWaitMinutes(waiting.length, avg)
 
   if (loadingDept) {
     return (
@@ -52,10 +57,29 @@ export default function PatientQueuePage() {
         {isReconnecting ? <ReconnectBanner /> : null}
 
         <div className="box" style={{ textAlign: 'center' }}>
-          <p>Waiting ahead</p>
+          <p>People waiting</p>
           <div className="ticket">{waiting.length}</div>
-          <p>Est. wait: {estimateWaitMinutes(waiting.length, 10)} min</p>
+          <p>
+            <b>Predicted wait: ~{predicted} min</b>
+          </p>
+          <small style={{ color: '#6b7280' }}>
+            simple estimate = waiting × avg last visits ({avg} min)
+          </small>
         </div>
+
+        {redirectInfo?.suggestRedirect && redirectInfo.quieterDepartment ? (
+          <div className="box box-warn">
+            <b>This department is busy</b>
+            <p>
+              Less busy:{' '}
+              <Link to={`/queue/${redirectInfo.quieterDepartment.slug}`}>
+                {redirectInfo.quieterDepartment.name}
+              </Link>{' '}
+              ({redirectInfo.quieterDepartment.waiting} waiting)
+            </p>
+            <small>Ask reception before switching.</small>
+          </div>
+        ) : null}
 
         <div className="box">
           <h3>Now serving</h3>
@@ -95,6 +119,13 @@ export default function PatientQueuePage() {
             </tbody>
           </table>
         )}
+
+        <div className="box box-plain" style={{ marginTop: 16, fontSize: 13 }}>
+          <b>Privacy</b>
+          <p className="muted" style={{ marginBottom: 0 }}>
+            Public board shows first name + last initial only. Full details stay with staff login.
+          </p>
+        </div>
       </div>
     </div>
   )

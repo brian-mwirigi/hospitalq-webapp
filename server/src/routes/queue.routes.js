@@ -14,7 +14,8 @@ import { authorize } from '../middleware/role.middleware.js';
 
 const router = express.Router();
 
-router.get('/:deptId/stats', protect, authorize('receptionist', 'admin', 'doctor'), getStats);
+// public so patient board can show wait estimate
+router.get('/:deptId/stats', getStats);
 router.get('/:deptId', getQueue);
 router.post('/', protect, authorize('receptionist', 'admin'), addPatient);
 router.patch('/:id/done', protect, authorize('doctor', 'admin'), markDone);
