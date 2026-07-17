@@ -1,18 +1,18 @@
 import { Link, useParams } from 'react-router-dom'
-import { useDeptBySlug } from '../hooks/useDepts'
-import { useQueue, useQueueStats } from '../hooks/useQueue'
-import { useRedirectSuggestion } from '../hooks/useStats'
-import { useSocket } from '../hooks/useSocket'
+import { useDeptBySlug } from '../useDepts'
+import { useQueue, useQueueStats } from '../useQueue'
+import { useRedirectSuggestion } from '../useStats'
+import { useSocket } from '../useSocket'
 import {
   estimateWaitMinutes,
   formatPatientNamePrivate,
   formatTicketNumber,
-} from '../utils/formatters'
-import { Spinner } from '../components/ui/Spinner'
-import { ErrorBox } from '../components/ui/ErrorBox'
-import { ReconnectBar } from '../components/ui/ReconnectBar'
-import { Ticket } from '../components/ui/Ticket'
-import { Badge } from '../components/ui/Badge'
+} from '../formatters'
+import { Spinner } from '../components/Spinner'
+import { ErrorBox } from '../components/ErrorBox'
+import { ReconnectBar } from '../components/ReconnectBar'
+import { Ticket } from '../components/Ticket'
+import { Badge } from '../components/Badge'
 
 export default function QueueBoard() {
   const params = useParams()

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { useDepts } from '../hooks/useDepts'
-import { Layout } from '../components/layout/Layout'
-import { Spinner } from '../components/ui/Spinner'
-import { ErrorBox } from '../components/ui/ErrorBox'
+import { useAuth } from '../useAuth'
+import { useDepts } from '../useDepts'
+import { Layout } from '../components/Layout'
+import { Spinner } from '../components/Spinner'
+import { ErrorBox } from '../components/ErrorBox'
 
 export default function Home() {
   const { isAuthed, user } = useAuth()

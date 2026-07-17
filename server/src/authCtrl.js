@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs'
-import User from '../models/User.js'
-import { generateToken } from '../utils/generateToken.js'
-import { asyncHandler } from '../utils/asyncHandler.js'
+import User from './models/User.js'
+import { generateToken, asyncHandler } from './helpers.js'
 
 function cleanUser(user) {
   return {

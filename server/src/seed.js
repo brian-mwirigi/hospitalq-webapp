@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
-import connectDB from './config/db.js';
+import connectDB from './db.js';
 import User from './models/User.js';
 import Department from './models/Department.js';
 

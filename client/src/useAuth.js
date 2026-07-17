@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import useAuthStore from '../store/auth.js'
-import authApi from '../services/authApi.js'
+import useAuthStore from './authStore.js'
+import authApi from './authApi.js'
 
 export function useAuth() {
   const queryClient = useQueryClient()

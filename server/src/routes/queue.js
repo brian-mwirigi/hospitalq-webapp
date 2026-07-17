@@ -8,9 +8,8 @@ import {
   skipPatient,
   removePatient,
   getStats,
-} from '../controllers/queueController.js';
-import { protect } from '../middleware/authMiddleware.js';
-import { authorize } from '../middleware/roleMiddleware.js';
+} from '../queueCtrl.js';
+import { protect, authorize } from '../middleware.js';
 
 const router = express.Router();
 

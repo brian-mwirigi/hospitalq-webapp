@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react'
-import { useAuth } from '../hooks/useAuth'
-import { useDepts } from '../hooks/useDepts'
+import { useAuth } from '../useAuth'
+import { useDepts } from '../useDepts'
 import {
   useMarkDone,
   useMarkInProgress,
   useMarkNoShow,
   useQueue,
-} from '../hooks/useQueue'
-import { useSocket } from '../hooks/useSocket'
-import { Layout } from '../components/layout/Layout'
-import { PatientCard } from '../components/queue/PatientCard'
-import { Button } from '../components/ui/Button'
-import { Spinner } from '../components/ui/Spinner'
-import { ErrorBox } from '../components/ui/ErrorBox'
-import { ReconnectBar } from '../components/ui/ReconnectBar'
-import { Ticket } from '../components/ui/Ticket'
-import { Badge } from '../components/ui/Badge'
+} from '../useQueue'
+import { useSocket } from '../useSocket'
+import { Layout } from '../components/Layout'
+import { PatientCard } from '../components/PatientCard'
+import { Button } from '../components/Button'
+import { Spinner } from '../components/Spinner'
+import { ErrorBox } from '../components/ErrorBox'
+import { ReconnectBar } from '../components/ReconnectBar'
+import { Ticket } from '../components/Ticket'
+import { Badge } from '../components/Badge'
 
 export default function Doctor() {
   const auth = useAuth()

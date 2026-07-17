@@ -1,35 +1,30 @@
-# HospitalQ (class project)
+# HospitalQ
 
- hospital queue web app (MERN).
+School project - hospital queue app (MongoDB, Express, React, Node).
 
-## What it does
-- Reception adds patients to a department queue
-- Doctor calls next / marks done / no-show
-- Patient board at `/queue/<dept-slug>` updates live
-- Wait estimate = waiting people × average of last visits
-- If a department is busy, suggests a quieter one
-- Optional phone = **mock SMS** (saved in DB, not really sent)
-- Admin page shows today stats + SMS log
+## Run it
 
-## Run
-1. Put MongoDB URI in `server/.env`
-2. From project root:
 ```bash
 npm run install-all
 cd server && npm run seed && cd ..
 npm run dev
 ```
-3. Open http://localhost:5173
 
-## Demo logins
+Open http://localhost:5173
+
+Need `server/.env` and `client/.env.local` (see the `.env.example` files).
+
+## Logins
+
 - reception@hospitalq.com / password123
 - doctor@hospitalq.com / password123
 - admin@hospitalq.com / password123
 
-## Privacy (simple)
-Public patient board shows first name + last initial only.
+Privacy: public board only shows first name + last initial.
 
-## Not real (future)
-- Real Twilio SMS
-- Real ML model
-- HIS hospital system integration
+## Folders
+
+```
+client/src/   pages + components + api/hooks files mixed in
+server/src/   routes, models, a few ctrl files, helpers.js
+```

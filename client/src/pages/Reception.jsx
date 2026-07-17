@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react'
-import { useDepts } from '../hooks/useDepts'
+import { useDepts } from '../useDepts'
 import {
   useAddPatient,
   useQueue,
   useQueueStats,
   useRemovePatient,
   useSkipPatient,
-} from '../hooks/useQueue'
-import { useRedirectSuggestion } from '../hooks/useStats'
-import { useSocket } from '../hooks/useSocket'
-import { Layout } from '../components/layout/Layout'
-import { PatientCard } from '../components/queue/PatientCard'
-import { Button } from '../components/ui/Button'
-import { Input } from '../components/ui/Input'
-import { Spinner } from '../components/ui/Spinner'
-import { ErrorBox } from '../components/ui/ErrorBox'
-import { ReconnectBar } from '../components/ui/ReconnectBar'
-import { formatTicketNumber } from '../utils/formatters'
+} from '../useQueue'
+import { useRedirectSuggestion } from '../useStats'
+import { useSocket } from '../useSocket'
+import { Layout } from '../components/Layout'
+import { PatientCard } from '../components/PatientCard'
+import { Button } from '../components/Button'
+import { Input } from '../components/Input'
+import { Spinner } from '../components/Spinner'
+import { ErrorBox } from '../components/ErrorBox'
+import { ReconnectBar } from '../components/ReconnectBar'
+import { formatTicketNumber } from '../formatters'
 
 export default function Reception() {
   const deptsQuery = useDepts()

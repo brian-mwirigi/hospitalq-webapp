@@ -2,13 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import authRoutes from './routes/authRoutes.js';
-import queueRoutes from './routes/queueRoutes.js';
-import departmentRoutes from './routes/deptRoutes.js';
-import analyticsRoutes from './routes/analyticsRoutes.js';
-import { requireDb } from './middleware/checkDb.js';
-import { notFound, errorHandler } from './middleware/errorHandler.js';
-import { isDbReady } from './config/db.js';
+import authRoutes from './routes/auth.js';
+import queueRoutes from './routes/queue.js';
+import departmentRoutes from './routes/depts.js';
+import analyticsRoutes from './routes/analytics.js';
+import { requireDb, notFound, errorHandler } from './middleware.js';
+import { isDbReady } from './db.js';
 
 export function createApp(ioHolder) {
   const app = express();

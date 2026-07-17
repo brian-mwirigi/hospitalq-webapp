@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import deptApi from '../services/deptApi.js';
+import deptApi from './deptApi.js';
 
 export function useDepts() {
   return useQuery({

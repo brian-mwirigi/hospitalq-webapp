@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { Layout } from '../components/layout/Layout'
-import { Input } from '../components/ui/Input'
-import { Button } from '../components/ui/Button'
-import { ErrorBox } from '../components/ui/ErrorBox'
+import { useAuth } from '../useAuth'
+import { Layout } from '../components/Layout'
+import { Input } from '../components/Input'
+import { Button } from '../components/Button'
+import { ErrorBox } from '../components/ErrorBox'
 
 export default function Login() {
   const { login, isAuthed, user } = useAuth()

@@ -6,9 +6,8 @@ import {
   updateDepartment,
   deleteDepartment,
   getDepartmentQR,
-} from '../controllers/deptController.js';
-import { protect } from '../middleware/authMiddleware.js';
-import { authorize } from '../middleware/roleMiddleware.js';
+} from '../deptsCtrl.js';
+import { protect, authorize } from '../middleware.js';
 
 const router = express.Router();
 

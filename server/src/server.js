@@ -1,9 +1,9 @@
 import http from 'http';
 import dotenv from 'dotenv';
 import { Server } from 'socket.io';
-import connectDB, { ensureDb, isDbReady } from './config/db.js';
+import connectDB, { ensureDb, isDbReady } from './db.js';
 import { createApp } from './app.js';
-import { initSocket } from './socket/index.js';
+import { initSocket } from './socket.js';
 
 dotenv.config();
 

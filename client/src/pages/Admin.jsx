@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useDepts } from '../hooks/useDepts'
-import { useBusyOverview, useSmsLogs } from '../hooks/useStats'
-import api from '../services/api'
-import { Layout } from '../components/layout/Layout'
-import { Button } from '../components/ui/Button'
-import { Input } from '../components/ui/Input'
-import { Spinner } from '../components/ui/Spinner'
-import { ErrorBox } from '../components/ui/ErrorBox'
+import { useDepts } from '../useDepts'
+import { useBusyOverview, useSmsLogs } from '../useStats'
+import api from '../api'
+import { Layout } from '../components/Layout'
+import { Button } from '../components/Button'
+import { Input } from '../components/Input'
+import { Spinner } from '../components/Spinner'
+import { ErrorBox } from '../components/ErrorBox'
 
 export default function Admin() {
   const queryClient = useQueryClient()

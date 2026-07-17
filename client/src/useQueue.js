@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import queueApi from '../services/queueApi.js';
+import queueApi from './queueApi.js';
 
 export function useQueue(deptId) {
   return useQuery({

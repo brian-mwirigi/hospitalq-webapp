@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import analyticsApi from '../services/analyticsApi.js';
+import analyticsApi from './analyticsApi.js';
 
 export function useBusyOverview(enabled = true) {
   return useQuery({

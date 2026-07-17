@@ -1,6 +1,5 @@
-import Department from '../models/Department.js';
-import { asyncHandler } from '../utils/asyncHandler.js';
-import { generateDeptQR } from '../utils/generateQR.js';
+import Department from './models/Department.js';
+import { asyncHandler, generateDeptQR } from './helpers.js';
 
 export const getAllDepartments = asyncHandler(async (req, res) => {
   const departments = await Department.find({ isActive: true }).sort({ name: 1 });

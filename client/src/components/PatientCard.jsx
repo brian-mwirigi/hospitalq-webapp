@@ -1,5 +1,5 @@
-import { Badge } from '../ui/Badge'
-import { Ticket } from '../ui/Ticket'
+import { Badge } from './Badge'
+import { Ticket } from './Ticket'
 
 export function PatientCard({ entry, privateName = false, actions }) {
   if (!entry) return null
