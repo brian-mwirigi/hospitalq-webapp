@@ -3,10 +3,9 @@
 ## Team Name and Roles
 Team Name: HospitalQ Team
 
-- Brian Mwirigi (@brian-mwirigi): Docs / DevOps Lead
+- Brian Mwirigi (@brian-mwirigi): Backend Lead
 - Maxwell Mwangi (@MwangiMaxwell): API Lead
-- Claire Warigi (@claire-warigi): QA / Integration Lead
-- [4th Member Name] (@github_username): Backend Dev
+- Claire Warigi (@claire-warigi): Frontend Lead
 
 ## App Summary
 HospitalQ is a hospital queue web app we made using React, Express, Node and MongoDB. It lets receptionists check patients in and hand out ticket numbers, doctors call patients in and mark visits done, and waiting rooms show a public board with ticket numbers and initials so patients know when it is their turn.
@@ -41,5 +40,5 @@ HospitalQ is a hospital queue web app we made using React, Express, Node and Mon
   - View stats for total patients, average wait times and average consult duration
 
 ## Ring Position
-- Upstream Partner (API we consume): Team [Number/Name]
-- Downstream Partner (team that consumes our API): Team [Number/Name]
+- Upstream Partner (API we consume): 
+- Downstream Partner (team that consumes our API):
