@@ -3,10 +3,10 @@
 ## Team Name & Roles
 Team Name: HospitalQ Team
 
-- Brian Mwirigi (@brian-mwirigi) - Repo Owner / DevOps Lead
+- Brian Mwirigi (@brian-mwirigi) - Repo Owner / Docs & DevOps Lead
 - Maxwell Mwangi (@MwangiMaxwell) - API Lead
-- [Teammate 3 Name] (@github_username) - Backend Dev
-- [Teammate 4 Name] (@github_username) - Integration / QA Lead
+- Claire Warigi (@claire-warigi) - Integration / QA Lead
+- [Teammate 4 Name] (@github_username) - Backend Dev (or 3-person team)
 
 ## App Summary
 HospitalQ is a hospital queue management app built with React, Node/Express, and MongoDB. It helps clinics manage patient flow across different departments. Receptionists check patients in and assign queue tickets, doctors call patients into consult rooms and mark visits complete, and waiting-room screens display an active, privacy-safe queue showing ticket numbers and patient initials.
