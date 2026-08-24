@@ -6,6 +6,7 @@ Team Name: HospitalQ Team
 - Brian Mwirigi (@brian-mwirigi): Backend Lead
 - Maxwell Mwangi (@MwangiMaxwell): API Lead
 - Claire Warigi (@claire-warigi): Frontend Lead
+- Abdura Ramin (@Abdura-Ramin) : API Lead
 
 ## App Summary
 HospitalQ is a hospital queue web app we made using React, Express, Node and MongoDB. It lets receptionists check patients in and hand out ticket numbers, doctors call patients in and mark visits done, and waiting rooms show a public board with ticket numbers and initials so patients know when it is their turn.
