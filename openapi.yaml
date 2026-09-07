@@ -1,0 +1,352 @@
+openapi: 3.0.0
+info:
+  title: HospitalQ API
+  version: 1.0.0
+  description: Endpoints KaziBuddy uses to check wait times and create a hospital ticket.
+
+servers:
+  - url: http://localhost:5000
+
+paths:
+  /api/auth/login:
+    post:
+      summary: Get a JWT so KaziBuddy can create tickets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: reception@hospitalq.com
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login successful
+                  data:
+                    type: object
+                    required: [token, user]
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example
+                      user:
+                        type: object
+                        required: [_id, name, email, role]
+                        properties:
+                          _id:
+                            type: string
+                            example: "64f1a2b3c4d5e6f7a8b9c0d4"
+                          name:
+                            type: string
+                            example: Reception Desk
+                          email:
+                            type: string
+                            format: email
+                            example: reception@hospitalq.com
+                          role:
+                            type: string
+                            enum: [receptionist, doctor, admin]
+                            example: receptionist
+
+  /api/departments:
+    get:
+      summary: List active departments so an artisan can pick where to check in
+      responses:
+        '200':
+          description: Active departments
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Department'
+
+  /api/queue/{deptId}:
+    get:
+      summary: Return today's queue (how many people waiting + ticket status)
+      parameters:
+        - name: deptId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "64f1a2b3c4d5e6f7a8b9c0d2"
+      responses:
+        '200':
+          description: Waiting and in-progress tickets for today
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QueueEntry'
+
+  /api/queue/{deptId}/stats:
+    get:
+      summary: Return predicted wait time for a department
+      parameters:
+        - name: deptId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "64f1a2b3c4d5e6f7a8b9c0d2"
+      responses:
+        '200':
+          description: Today's wait counts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    required: [total, waiting, avgWaitMinutes, predictedWaitMinutes]
+                    properties:
+                      total:
+                        type: integer
+                        example: 18
+                      waiting:
+                        type: integer
+                        example: 7
+                      done:
+                        type: integer
+                        example: 9
+                      inProgress:
+                        type: integer
+                        example: 1
+                      noShow:
+                        type: integer
+                        example: 1
+                      walkOuts:
+                        type: integer
+                        example: 1
+                      avgWaitMinutes:
+                        type: integer
+                        example: 12
+                      predictedWaitMinutes:
+                        type: integer
+                        example: 84
+
+  /api/queue:
+    post:
+      summary: Check in an injured artisan and issue a ticket
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientName, department]
+              properties:
+                patientName:
+                  type: string
+                  example: Mary Wanjiku
+                department:
+                  type: string
+                  example: "64f1a2b3c4d5e6f7a8b9c0d2"
+                priority:
+                  type: string
+                  enum: [normal, urgent]
+                  example: urgent
+                notes:
+                  type: string
+                  example: Injured on site
+                patientPhone:
+                  type: string
+                  example: "0712345678"
+                patientAge:
+                  type: integer
+                  example: 34
+                gender:
+                  type: string
+                  enum: [male, female, other, prefer-not-to-say]
+                  example: female
+      responses:
+        '201':
+          description: Ticket created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Patient added to queue
+                  data:
+                    $ref: '#/components/schemas/QueueEntry'
+
+  /api/analytics/overview:
+    get:
+      summary: Return average wait times per department
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Busy snapshot for today
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    required: [departments, totals]
+                    properties:
+                      departments:
+                        type: array
+                        items:
+                          type: object
+                          required: [departmentId, name, slug, waiting, avgConsultMinutes, predictedWaitMinutes, busy]
+                          properties:
+                            departmentId:
+                              type: string
+                              example: "64f1a2b3c4d5e6f7a8b9c0d2"
+                            name:
+                              type: string
+                              example: General OPD
+                            slug:
+                              type: string
+                              example: general-opd
+                            waiting:
+                              type: integer
+                              example: 7
+                            avgConsultMinutes:
+                              type: integer
+                              example: 12
+                            predictedWaitMinutes:
+                              type: integer
+                              example: 84
+                            busy:
+                              type: boolean
+                              example: true
+                      totals:
+                        type: object
+                        properties:
+                          waiting:
+                            type: integer
+                            example: 10
+                          done:
+                            type: integer
+                            example: 14
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Department:
+      type: object
+      required: [_id, name, slug, isActive]
+      properties:
+        _id:
+          type: string
+          example: "64f1a2b3c4d5e6f7a8b9c0d2"
+        name:
+          type: string
+          example: General OPD
+        slug:
+          type: string
+          example: general-opd
+        description:
+          type: string
+          example: General outpatient department
+        isActive:
+          type: boolean
+          example: true
+
+    QueueEntry:
+      type: object
+      required: [_id, ticketNumber, patientName, status, priority]
+      properties:
+        _id:
+          type: string
+          example: "64f1a2b3c4d5e6f7a8b9c0d3"
+        ticketNumber:
+          type: integer
+          example: 12
+        patientName:
+          type: string
+          example: Mary Wanjiku
+        patientPhone:
+          type: string
+          example: "0712345678"
+        status:
+          type: string
+          enum: [waiting, in-progress, done, no-show, skipped]
+          example: waiting
+        priority:
+          type: string
+          enum: [normal, urgent]
+          example: urgent
+        department:
+          type: object
+          properties:
+            _id:
+              type: string
+              example: "64f1a2b3c4d5e6f7a8b9c0d2"
+            name:
+              type: string
+              example: General OPD
+            slug:
+              type: string
+              example: general-opd
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-09-07T07:40:00.000Z"
+        calledAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-09-07T08:15:00.000Z"
