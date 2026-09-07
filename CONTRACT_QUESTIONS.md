@@ -1,21 +1,21 @@
 # Contract Questions
 
-We sent our openapi.yaml to KaziBuddy. QuickFundi still hasnt sent theirs so we reviewed our own spec like the lab said.
+QuickFundi (Team 12) sent their spec after we had already uploaded ours on eLearning. These questions are about their yaml.
 
-## 1. Login for POST /api/queue
+## 1. POST /bookings — we were told we cant write anything
 
-To create a ticket you need a Bearer token from POST /api/auth/login, and login is just a staff email and password like reception@hospitalq.com. We never made an api key for partner apps.
+In week 2 they said we can read worker profiles (skills, rates, reviews) but we cannot create or edit stuff on their side. Their spec has POST /bookings, PATCH /bookings/{id} to reschedule, and DELETE /bookings/{id} to cancel.
 
-If KaziBuddy uses this, do they log in as our receptionist? We also didnt put a 401 response so they wont know what happens when the token dies.
+Are we actually allowed to book a fundi for hospital maintenance or is that leftover from another team? requestedBy is just a string like "HospitalQ Facilities Desk". Is that enough or do they want a real account id?
 
-## 2. No way to fetch one ticket
+## 2. No auth on any route
 
-KaziBuddy wanted to ping a ticket when the doctor calls the artisan. We only have GET /api/queue/{deptId} which dumps the whole line. There is no GET for one ticket by id.
+GET /workers, GET /workers/{id}, and all the booking routes have no token. Anyone who has the url can search people and cancel booking bk_5021.
 
-After POST /api/queue they get back an _id and a ticketNumber. Which one are they supposed to save? Also that queue endpoint is public and sends the full patientName. We told them names would be hidden.
+They said passwords and suspension status are off limits, which is fine, but how do we call this without some key? If a booking DELETE returns 409 BOOKING_NOT_CANCELLABLE when its already completed, what about if we never had permission in the first place? There is no 401 in the whole file.
 
-## 3. Two different wait time endpoints
+## 3. GET /workers — jobType and location are kinda tight
 
-GET /api/queue/{deptId}/stats is public and has predictedWaitMinutes. GET /api/analytics/overview has the same kind of number but it needs a token. In week 2 we said wait times dont need auth.
+jobType is required and the enum is only electrician, plumber, handyman. What if we need a carpenter or painter for the hospital? Do we just not use their API then?
 
-Which one should they actually call? And if they pass a fake deptId, stats has no 404 in the spec. Also busy is just true/false with no note on what counts as busy.
+location is a free string, example "Nairobi, Upper Hill". Do we have to match that exact text or is it a search? Also ratePerHour is 800 with no currency, and the profile has no skills list even though they said skills were fair game. experienceYears is there but skills is not.
