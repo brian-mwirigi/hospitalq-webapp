@@ -1,6 +1,8 @@
 # Contract Questions
 
-QuickFundi’s `openapi.yaml` had not arrived yet, so these three questions are about **our** HospitalQ contract (the handout fallback). We will swap them for QuickFundi-specific questions once Team 12 sends their spec.
+**Handoff:** we sent `openapi.yaml` to KaziBuddy (Team 1, downstream). QuickFundi (Team 12, upstream) has not sent theirs.
+
+The handout says if the partner spec is late, apply the review to our own contract. These three questions are that fallback.
 
 ## 1. POST `/api/queue` — how does KaziBuddy authenticate?
 
