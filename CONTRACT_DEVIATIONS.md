@@ -39,3 +39,19 @@ GET /api/queue/not-a-real-id was 404 DEPT_NOT_FOUND. Same thing on the stats url
 GET /api/queue/{deptId}/stats for General OPD was 200. total 1, waiting 1, avgWaitMinutes 10, predictedWaitMinutes 10. All numbers.
 
 GET /api/analytics/overview with no token was 401 NO_TOKEN. With the receptionist login it was 200. data only has departments and totals. busy was false because only 1 person was waiting.
+
+Week 6.
+
+The yaml only has two writes. POST /api/auth/login and POST /api/queue. There is no PUT, PATCH or DELETE in the contract, so we left the staff queue buttons (done, no-show, skip, delete) alone. Those arent for KaziBuddy.
+
+We check the body before we touch the database. If a field is missing, empty, the wrong type, or a value we cant use, we send 400 MISSING_FIELDS and stop. Nothing gets written and we dont burn a ticket number.
+
+Login: email and password have to be text, not blank, and the email has to look like an email. A number in the email field is 400. A wrong password is still 401 INVALID_CREDENTIALS. We added those two responses to the yaml. The login user is _id, name, email, role, and department. Department wasnt in the week 4 user object. The doctor page needs it or it opens the wrong queue, so we put it on the yaml as optional. Reception has no department so that one comes back null. We stopped sending isActive, createdAt and updatedAt on login.
+
+POST /api/queue: patientName and department are required text. An empty name is 400. A department id that isnt 24 hex characters is 400. A real-looking id that isnt a department is 404 DEPT_NOT_FOUND, same as the GET. priority has to be normal or urgent. patientAge has to be a whole number if they send it. gender has to be one of male, female, other, prefer-not-to-say. No token is 401. We added 400, 401 and 404 on that path in the yaml.
+
+When the check-in works we send 201 and the same queue shape as the GET. notes, age, gender and __v stay in mongo, they dont come back in the json. Login stays 200, not 201, because the contract already said 200 and login doesnt create a row.
+
+Posting the same patient twice makes two tickets. Thats a create, not a PUT. The handout's "same PUT twice" rule doesnt apply here because we dont have a PUT in the yaml.
+
+We tried the bad bodies on the running server. Missing name, blank name, age as a string, priority HIGH, and a junk department id all came back 400 and the queue count stayed the same. A made-up but real-looking department id was 404. No token was 401. A good check-in was 201, then GET /api/queue/{deptId} showed that ticket. A second identical POST was another ticket, number 2.

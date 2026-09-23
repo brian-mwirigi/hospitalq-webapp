@@ -79,7 +79,21 @@ export const getQueue = asyncHandler(async (req, res) => {
   });
 });
 
+function badQueue(res, message) {
+  return res.status(400).json({
+    success: false,
+    message,
+    error: 'MISSING_FIELDS',
+  });
+}
+
 export const addPatient = asyncHandler(async (req, res) => {
+  const body = req.body;
+
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return badQueue(res, 'Patient name and department are required.');
+  }
+
   const {
     patientName,
     department,
@@ -88,14 +102,43 @@ export const addPatient = asyncHandler(async (req, res) => {
     patientPhone = '',
     patientAge,
     gender,
-  } = req.body;
+  } = body;
 
-  if (!patientName || !department) {
-    return res.status(400).json({
-      success: false,
-      message: 'Patient name and department are required.',
-      error: 'MISSING_FIELDS',
-    });
+  if (patientName === undefined || patientName === null || department === undefined || department === null) {
+    return badQueue(res, 'Patient name and department are required.');
+  }
+
+  if (typeof patientName !== 'string' || typeof department !== 'string') {
+    return badQueue(res, 'Patient name and department must be text.');
+  }
+
+  if (!patientName.trim()) {
+    return badQueue(res, 'Patient name and department are required.');
+  }
+
+  if (!isDepartmentId(department)) {
+    return badQueue(res, 'Department id is not valid.');
+  }
+
+  if (priority !== 'normal' && priority !== 'urgent') {
+    return badQueue(res, 'Priority must be normal or urgent.');
+  }
+
+  if (typeof notes !== 'string' || typeof patientPhone !== 'string') {
+    return badQueue(res, 'Notes and phone must be text.');
+  }
+
+  if (patientAge !== undefined && patientAge !== null) {
+    if (typeof patientAge !== 'number' || !Number.isInteger(patientAge) || patientAge < 0) {
+      return badQueue(res, 'Age must be a whole number.');
+    }
+  }
+
+  if (gender !== undefined && gender !== null) {
+    const okGender = ['male', 'female', 'other', 'prefer-not-to-say'];
+    if (!okGender.includes(gender)) {
+      return badQueue(res, 'Gender is not one of the allowed values.');
+    }
   }
 
   const dept = await Department.findById(department);
@@ -114,7 +157,7 @@ export const addPatient = asyncHandler(async (req, res) => {
     ticketNumber,
     patientName: patientName.trim(),
     patientPhone,
-    patientAge: patientAge || null,
+    patientAge: patientAge === undefined || patientAge === null ? null : patientAge,
     gender: gender || null,
     department,
     priority,
@@ -157,7 +200,7 @@ export const addPatient = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: populated,
+    data: shapeQueueEntry(populated),
     message: patientPhone
       ? 'Patient added to queue (mock SMS saved)'
       : 'Patient added to queue',

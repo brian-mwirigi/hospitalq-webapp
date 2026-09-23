@@ -66,6 +66,30 @@ paths:
                             type: string
                             enum: [receptionist, doctor, admin]
                             example: receptionist
+                          department:
+                            type: string
+                            nullable: true
+                            example: "64f1a2b3c4d5e6f7a8b9c0d2"
+        '400':
+          description: Email or password missing, empty, or not text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Email and password are required.
+                error: MISSING_FIELDS
+        '401':
+          description: Email and password were the right type but they dont match a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Invalid email or password.
+                error: INVALID_CREDENTIALS
 
   /api/departments:
     get:
@@ -238,6 +262,36 @@ paths:
                     example: Patient added to queue
                   data:
                     $ref: '#/components/schemas/QueueEntry'
+        '400':
+          description: Required field missing, wrong type, or a value that cannot be used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Patient name and department are required.
+                error: MISSING_FIELDS
+        '401':
+          description: No token, or the token is bad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Not authorized. Please log in.
+                error: NO_TOKEN
+        '404':
+          description: Department id is real-looking but that department is missing or turned off
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Department not found.
+                error: DEPT_NOT_FOUND
 
   /api/analytics/overview:
     get:
