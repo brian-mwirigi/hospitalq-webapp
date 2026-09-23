@@ -1,12 +1,12 @@
 import Department from './models/Department.js';
-import { asyncHandler, generateDeptQR } from './helpers.js';
+import { asyncHandler, generateDeptQR, shapeDepartment } from './helpers.js';
 
 export const getAllDepartments = asyncHandler(async (req, res) => {
   const departments = await Department.find({ isActive: true }).sort({ name: 1 });
 
   res.json({
     success: true,
-    data: departments,
+    data: departments.map(shapeDepartment),
   });
 });
 

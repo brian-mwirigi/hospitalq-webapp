@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import QRCode from 'qrcode';
 import SmsLog from './models/SmsLog.js';
 
@@ -26,6 +27,64 @@ export function getTodayDateString() {
 export function getStartOfDayUTC() {
   const today = getTodayDateString();
   return new Date(`${today}T00:00:00.000Z`);
+}
+
+export function isDepartmentId(id) {
+  if (!id || typeof id !== 'string') return false;
+  if (!mongoose.Types.ObjectId.isValid(id)) return false;
+  return String(new mongoose.Types.ObjectId(id)) === id;
+}
+
+function isoOrNull(value) {
+  if (!value) return null;
+  return new Date(value).toISOString();
+}
+
+export function shapeDepartment(dept) {
+  return {
+    _id: String(dept._id),
+    name: dept.name,
+    slug: dept.slug,
+    description: dept.description || '',
+    isActive: dept.isActive === true,
+  };
+}
+
+export function shapeQueueEntry(entry) {
+  const rawDept = entry.department;
+  let department = null;
+
+  if (rawDept && rawDept._id) {
+    department = {
+      _id: String(rawDept._id),
+      name: rawDept.name,
+      slug: rawDept.slug,
+    };
+  }
+
+  return {
+    _id: String(entry._id),
+    ticketNumber: Number(entry.ticketNumber),
+    patientName: entry.patientName,
+    patientPhone: entry.patientPhone || '',
+    status: entry.status,
+    priority: entry.priority,
+    department,
+    createdAt: isoOrNull(entry.createdAt),
+    calledAt: isoOrNull(entry.calledAt),
+  };
+}
+
+export function shapeBusyRow(row) {
+  return {
+    departmentId: String(row.departmentId),
+    name: row.name,
+    slug: row.slug,
+    waiting: Number(row.waiting),
+    avgConsultMinutes: Number(row.avgConsultMinutes),
+    predictedWaitMinutes: Number(row.predictedWaitMinutes),
+    busy: row.busy === true,
+  };
 }
 
 export async function sendMockSms({ to, message, relatedTicket = null, department = null }) {

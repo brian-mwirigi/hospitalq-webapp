@@ -9,6 +9,8 @@ import {
   ticketJoinedMessage,
   ticketCalledMessage,
   ticketDoneMessage,
+  isDepartmentId,
+  shapeQueueEntry,
 } from './helpers.js';
 import { getAvgConsultMinutes } from './analyticsCtrl.js';
 
@@ -49,23 +51,31 @@ async function emitQueueUpdated(req, departmentId) {
   });
 }
 
+function deptNotFound(res) {
+  return res.status(404).json({
+    success: false,
+    message: 'Department not found.',
+    error: 'DEPT_NOT_FOUND',
+  });
+}
+
 export const getQueue = asyncHandler(async (req, res) => {
   const { deptId } = req.params;
 
+  if (!isDepartmentId(deptId)) {
+    return deptNotFound(res);
+  }
+
   const department = await Department.findById(deptId);
   if (!department || !department.isActive) {
-    return res.status(404).json({
-      success: false,
-      message: 'Department not found.',
-      error: 'DEPT_NOT_FOUND',
-    });
+    return deptNotFound(res);
   }
 
   const queue = await getActiveQueue(deptId);
 
   res.json({
     success: true,
-    data: queue,
+    data: queue.map(shapeQueueEntry),
   });
 });
 
@@ -347,6 +357,16 @@ export const removePatient = asyncHandler(async (req, res) => {
 
 export const getStats = asyncHandler(async (req, res) => {
   const { deptId } = req.params;
+
+  if (!isDepartmentId(deptId)) {
+    return deptNotFound(res);
+  }
+
+  const department = await Department.findById(deptId);
+  if (!department || !department.isActive) {
+    return deptNotFound(res);
+  }
+
   const queueDate = getStartOfDayUTC();
 
   const entries = await QueueEntry.find({

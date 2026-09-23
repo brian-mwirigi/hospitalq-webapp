@@ -113,6 +113,16 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/QueueEntry'
+        '404':
+          description: Department id is wrong or that department is turned off
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Department not found.
+                error: DEPT_NOT_FOUND
 
   /api/queue/{deptId}/stats:
     get:
@@ -164,6 +174,16 @@ paths:
                       predictedWaitMinutes:
                         type: integer
                         example: 84
+        '404':
+          description: Department id is wrong or that department is turned off
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Department not found.
+                error: DEPT_NOT_FOUND
 
   /api/queue:
     post:
@@ -276,6 +296,16 @@ paths:
                           done:
                             type: integer
                             example: 14
+        '401':
+          description: No token, or the token is bad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              example:
+                success: false
+                message: Not authorized. Please log in.
+                error: NO_TOKEN
 
 components:
   securitySchemes:
@@ -285,6 +315,20 @@ components:
       bearerFormat: JWT
 
   schemas:
+    ErrorBody:
+      type: object
+      required: [success, message, error]
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Department not found.
+        error:
+          type: string
+          example: DEPT_NOT_FOUND
+
     Department:
       type: object
       required: [_id, name, slug, isActive]

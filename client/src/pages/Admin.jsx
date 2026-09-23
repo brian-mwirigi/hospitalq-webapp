@@ -69,22 +69,14 @@ export default function Admin() {
         ) : (
           <>
             <p>
-              Waiting: {overview?.totals?.waiting ?? 0} | Done: {overview?.totals?.done ?? 0} |
-              Walk-outs (no-show): {overview?.totals?.walkOuts ?? 0}
+              Waiting: {overview?.totals?.waiting ?? 0} | Done: {overview?.totals?.done ?? 0}
             </p>
-            {overview?.leastBusy ? (
-              <p>
-                Least busy now: <b>{overview.leastBusy.name}</b> (
-                {overview.leastBusy.waiting} waiting)
-              </p>
-            ) : null}
             <table>
               <thead>
                 <tr>
                   <th>Dept</th>
                   <th>Waiting</th>
-                  <th>Done</th>
-                  <th>Walk-outs</th>
+                  <th>Avg consult</th>
                   <th>Pred. wait</th>
                 </tr>
               </thead>
@@ -95,8 +87,7 @@ export default function Admin() {
                       {row.name} {row.busy ? '(busy)' : ''}
                     </td>
                     <td>{row.waiting}</td>
-                    <td>{row.done}</td>
-                    <td>{row.walkOuts}</td>
+                    <td>{row.avgConsultMinutes} min</td>
                     <td>~{row.predictedWaitMinutes} min</td>
                   </tr>
                 ))}

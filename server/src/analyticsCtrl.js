@@ -1,7 +1,7 @@
 import QueueEntry from './models/QueueEntry.js';
 import Department from './models/Department.js';
 import SmsLog from './models/SmsLog.js';
-import { asyncHandler, getStartOfDayUTC } from './helpers.js';
+import { asyncHandler, getStartOfDayUTC, shapeBusyRow } from './helpers.js';
 
 async function countWaiting(departmentId) {
   const queueDate = getStartOfDayUTC();
@@ -63,17 +63,13 @@ export const getBusyOverview = asyncHandler(async (req, res) => {
 
   rows.sort((a, b) => b.waiting - a.waiting);
 
-  const leastBusy = [...rows].sort((a, b) => a.waiting - b.waiting)[0] || null;
-
   res.json({
     success: true,
     data: {
-      departments: rows,
-      leastBusy,
+      departments: rows.map(shapeBusyRow),
       totals: {
         waiting: rows.reduce((s, r) => s + r.waiting, 0),
         done: rows.reduce((s, r) => s + r.done, 0),
-        walkOuts: rows.reduce((s, r) => s + r.walkOuts, 0),
       },
     },
   });
