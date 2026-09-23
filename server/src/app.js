@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { readFileSync } from 'fs';
+import { parse } from 'yaml';
+import swaggerUi from 'swagger-ui-express';
 import authRoutes from './routes/auth.js';
 import queueRoutes from './routes/queue.js';
 import departmentRoutes from './routes/depts.js';
@@ -12,7 +15,14 @@ import { isDbReady } from './db.js';
 export function createApp(ioHolder) {
   const app = express();
 
-  app.use(helmet());
+  const openapiPath = new URL('../../openapi.yaml', import.meta.url);
+  const openapi = parse(readFileSync(openapiPath, 'utf8'));
+
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/docs')) return next();
+    return helmet()(req, res, next);
+  });
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapi));
   app.use(
     cors({
       origin: process.env.CLIENT_URL || 'http://localhost:5173',

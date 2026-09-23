@@ -30,12 +30,14 @@ Stats still sends `total`, `waiting`, `done`, `inProgress`, `noShow`, `walkOuts`
 
 ## What I checked
 
-Swagger UI is not hooked up to this repo, so I did not click Try it out. I ran the four GETs against a throwaway database and compared the JSON keys to the yaml.
+The handout does not say MongoDB or MySQL. This app was already Mongo, so I ran Mongo on this laptop (`mongodb://127.0.0.1:27017/hospitalq`), seeded the three departments, and opened Swagger at `http://localhost:5000/docs`. The server dropdown is `http://localhost:5000`. I clicked Try it out on each GET and compared the response to the yaml.
+
+`/docs` is just Swagger for us. It is not a new endpoint for KaziBuddy.
 
 | Call | Status | Result |
 |---|---|---|
-| `GET /api/departments` | 200 | Only General OPD. Keys `_id`, `name`, `slug`, `description`, `isActive`. No extras. Old Ward (`isActive: false`) was not in the list. |
-| `GET /api/queue/{deptId}` | 200 | Ticket 12. `ticketNumber` is a number. `createdAt` is an ISO string. `calledAt` is null. Department keys are `_id`, `name`, `slug`. `notes` was in the database (`Chest pain`) and was not in the JSON. |
+| `GET /api/departments` | 200 | Dental, General OPD, Pediatrics. Keys `_id`, `name`, `slug`, `description`, `isActive`. No extras. |
+| `GET /api/queue/{deptId}` | 200 | Mary Wanjiku, ticket 1. `ticketNumber` is a number. `createdAt` is `2026-09-23T20:10:41.411Z`. `calledAt` is null. Department keys are `_id`, `name`, `slug`. `notes` was saved on check-in and was not in this JSON. |
 | `GET /api/queue/not-a-real-id` | 404 | `DEPT_NOT_FOUND` |
 | `GET /api/queue/{inactiveId}` | 404 | `DEPT_NOT_FOUND` |
 | `GET /api/queue/{deptId}/stats` | 200 | All eight count fields, all numbers. With one waiting patient and no finished visits: total 1, waiting 1, avgWaitMinutes 10, predictedWaitMinutes 10. |
