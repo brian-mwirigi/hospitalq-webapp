@@ -1,7 +1,19 @@
 import { asyncHandler } from './helpers.js';
 
-const BASE =
-  process.env.QUICKFUNDI_URL || 'https://team12-webapp-production.up.railway.app';
+function partnerUrl() {
+  return (
+    process.env.PARTNER_URL ||
+    process.env.QUICKFUNDI_URL ||
+    'https://team12-webapp-production.up.railway.app'
+  );
+}
+
+function partnerHeaders(extra = {}) {
+  const headers = { ...extra };
+  const key = (process.env.PARTNER_API_KEY || '').trim();
+  if (key) headers['X-API-Key'] = key;
+  return headers;
+}
 
 async function readQuickFundiBody(res) {
   const text = await res.text();
@@ -12,10 +24,68 @@ async function readQuickFundiBody(res) {
   }
 }
 
-async function fetchQuickFundi(path, options) {
-  const res = await fetch(`${BASE}${path}`, options);
-  const body = await readQuickFundiBody(res);
-  return { status: res.status, body };
+function shapeWorkerSummary(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    jobType: row.jobType,
+    location: row.location,
+    rating: row.rating,
+    ratePerHour: row.ratePerHour,
+  };
+}
+
+function shapeWorkerProfile(row) {
+  return {
+    ...shapeWorkerSummary(row),
+    experienceYears: row.experienceYears,
+    reviews: Array.isArray(row.reviews)
+      ? row.reviews.map((review) => ({
+          author: review.author,
+          comment: review.comment,
+          rating: review.rating,
+        }))
+      : [],
+  };
+}
+
+function shapeBooking(row) {
+  return {
+    id: row.id,
+    workerId: row.workerId,
+    jobType: row.jobType,
+    location: row.location,
+    scheduledFor: row.scheduledFor,
+    status: row.status,
+  };
+}
+
+async function fetchQuickFundi(path, options = {}) {
+  const url = `${partnerUrl()}${path}`;
+  const method = options.method || 'GET';
+  console.log('partner call', method, url, 'header names:', Object.keys(partnerHeaders(options.headers)).join(','));
+
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers: partnerHeaders(options.headers),
+    });
+    const body = await readQuickFundiBody(res);
+    if (!res.ok) console.error('partner returned', res.status);
+    return { status: res.status, body };
+  } catch (err) {
+    const code = err.cause?.code || err.cause?.errors?.[0]?.code || err.message;
+    console.error('partner call failed:', code);
+    return { status: 0, body: null };
+  }
+}
+
+function partnerDown(res) {
+  return res.status(502).json({
+    success: false,
+    message: 'QuickFundi is unavailable right now.',
+    error: 'PARTNER_UNAVAILABLE',
+  });
 }
 
 export const searchWorkers = asyncHandler(async (req, res) => {
@@ -33,23 +103,35 @@ export const searchWorkers = asyncHandler(async (req, res) => {
   const qs = new URLSearchParams({ jobType: String(jobType), location: String(location) });
   const upstream = await fetchQuickFundi(`/workers?${qs.toString()}`);
 
+  if (upstream.status === 0 || upstream.status >= 500) {
+    return partnerDown(res);
+  }
+
   if (upstream.status >= 400) {
     return res.status(upstream.status).json({
       success: false,
       message: upstream.body?.message || 'QuickFundi search failed.',
-      error: 'QUICKFUNDI_ERROR',
-      data: upstream.body,
+      error: upstream.body?.code || 'QUICKFUNDI_ERROR',
     });
+  }
+
+  if (!Array.isArray(upstream.body)) {
+    console.error('partner returned', upstream.status, 'but workers was not a list');
+    return partnerDown(res);
   }
 
   res.json({
     success: true,
-    data: upstream.body,
+    data: upstream.body.map(shapeWorkerSummary),
   });
 });
 
 export const getWorker = asyncHandler(async (req, res) => {
   const upstream = await fetchQuickFundi(`/workers/${encodeURIComponent(req.params.id)}`);
+
+  if (upstream.status === 0 || upstream.status >= 500) {
+    return partnerDown(res);
+  }
 
   if (upstream.status === 404) {
     return res.status(404).json({
@@ -69,7 +151,7 @@ export const getWorker = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: upstream.body,
+    data: shapeWorkerProfile(upstream.body),
   });
 });
 
@@ -98,6 +180,10 @@ export const createBooking = asyncHandler(async (req, res) => {
     body: JSON.stringify(payload),
   });
 
+  if (upstream.status === 0 || upstream.status >= 500) {
+    return partnerDown(res);
+  }
+
   if (upstream.status >= 400) {
     return res.status(upstream.status).json({
       success: false,
@@ -109,7 +195,7 @@ export const createBooking = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: upstream.body,
+    data: shapeBooking(upstream.body || {}),
     message: 'Booking created on QuickFundi',
   });
 });
@@ -125,6 +211,10 @@ export const getBooking = asyncHandler(async (req, res) => {
   }
 
   const upstream = await fetchQuickFundi(`/bookings/${encodeURIComponent(id)}`);
+
+  if (upstream.status === 0 || upstream.status >= 500) {
+    return partnerDown(res);
+  }
 
   if (upstream.status === 404) {
     return res.status(404).json({
@@ -144,6 +234,6 @@ export const getBooking = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: upstream.body,
+    data: shapeBooking(upstream.body || {}),
   });
 });

@@ -264,13 +264,10 @@ export default function Admin() {
           <ErrorBox
             message={
               fundiError.response?.data?.message ||
-              fundiError.message ||
-              'Could not load QuickFundi workers'
+              'QuickFundi is unavailable right now. The rest of HospitalQ still works.'
             }
           />
-        ) : null}
-
-        {loadingFundi ? (
+        ) : loadingFundi ? (
           <Spinner />
         ) : fundiWorkers.length === 0 ? (
           <p>No workers came back. Try another location or job type.</p>
