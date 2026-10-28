@@ -1,0 +1,19 @@
+open these in the browser (GET = json on the page)
+
+OUR API — live
+https://hospitalq-webapp.vercel.app/api/departments
+
+OUR API — swagger (try login + queue here, pretty ui)
+https://hospitalq-webapp.vercel.app/docs
+
+TEAM 12 QUICKFUNDI — live (no /api)
+https://team12-webapp-production.up.railway.app/
+https://team12-webapp-production.up.railway.app/workers?jobType=plumber&location=Nairobi
+https://team12-webapp-production.up.railway.app/workers?jobType=electrician&location=Nairobi
+https://team12-webapp-production.up.railway.app/workers/wk_1043
+
+OUR APP (ui not raw json)
+https://hospitalq-webapp.vercel.app/login
+https://hospitalq-webapp.vercel.app/admin
+
+login + token routes dont work from address bar — use /docs or admin

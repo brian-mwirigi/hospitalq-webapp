@@ -7,12 +7,13 @@ import Department from './models/Department.js';
 
 dotenv.config();
 
-async function seed() {
-  await connectDB();
+export async function seedData() {
+  if (mongoose.connection.readyState !== 1) {
+    await connectDB();
+  }
 
   if (mongoose.connection.readyState !== 1) {
-    console.error('MongoDB is not connected. Start MongoDB and try again.');
-    process.exit(1);
+    throw new Error('MongoDB is not connected.');
   }
 
   const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
@@ -84,10 +85,15 @@ async function seed() {
   }
 
   console.log('Seed complete');
-  process.exit(0);
 }
 
-seed().catch((error) => {
-  console.error('Seed failed:', error);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1] && process.argv[1].replaceAll('\\', '/').endsWith('/src/seed.js');
+
+if (isDirectRun) {
+  seedData()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error('Seed failed:', error);
+      process.exit(1);
+    });
+}

@@ -1,0 +1,47 @@
+HospitalQ live base
+https://hospitalq-webapp.vercel.app
+
+Team 1 (Juakali / KaziBuddy) contract URLs
+https://hospitalq-webapp.vercel.app/api/auth/login          POST JSON — get JWT first
+https://hospitalq-webapp.vercel.app/api/departments         GET — no auth
+https://hospitalq-webapp.vercel.app/api/queue/DEPT_ID       GET — no auth (use _id OR slug e.g. general-opd)
+https://hospitalq-webapp.vercel.app/api/queue/DEPT_ID/stats GET — no auth
+https://hospitalq-webapp.vercel.app/api/queue               POST JSON + Bearer token
+https://hospitalq-webapp.vercel.app/api/analytics/overview  GET + Bearer token
+
+docs + try-it UI
+https://hospitalq-webapp.vercel.app/docs
+
+demo login (password password123 for all)
+reception@hospitalq.com   — can POST /api/queue
+doctor@hospitalq.com
+admin@hospitalq.com
+
+--- if departments works but the rest fails, check this ---
+
+1) Base URL must be https://hospitalq-webapp.vercel.app — not localhost from openapi unless you run our server locally.
+
+2) Queue paths need a department from GET /api/departments:
+   - Best: copy data[]._id (24-character hex)
+   - Also works: slug such as general-opd, dental, pediatrics
+   - Wrong: example ids from the yaml (64f1a2b3...) — those are placeholders, not our live DB
+
+3) Login before check-in or overview:
+   POST /api/auth/login  body {"email":"reception@hospitalq.com","password":"password123"}
+   Header on locked routes: Authorization: Bearer PASTE_data.token
+
+4) POST /api/queue body must be JSON with at least:
+   {"patientName":"Artisan name","department":"PASTE_dept_id_or_slug"}
+
+5) First request after idle may return 503 DB_NOT_CONNECTED — wait 2–3 seconds and retry (serverless cold start).
+
+6) All paths include /api/ — e.g. /api/queue not /queue
+
+7) Windows curl: broken JSON on login is common — use /docs Try it out, Postman, or fetch/axios with JSON.stringify.
+
+quickfundi proxy (admin token only — not Team 1 contract)
+https://hospitalq-webapp.vercel.app/api/quickfundi/workers?jobType=plumber&location=Nairobi
+https://hospitalq-webapp.vercel.app/api/quickfundi/bookings/BOOKING_ID
+
+team 12 confirm booking (browser)
+https://team12-webapp-production.up.railway.app/bookings/BOOKING_ID

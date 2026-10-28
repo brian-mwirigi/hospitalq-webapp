@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import connectDB, { ensureDb, isDbReady } from './db.js';
 import { createApp } from './app.js';
+import { apiKeyCount } from './security.js';
 import { initSocket } from './socket.js';
 
 dotenv.config();
@@ -27,6 +28,7 @@ const startServer = async () => {
   const PORT = process.env.PORT || 5000;
   httpServer.listen(PORT, () => {
     console.log(`HospitalQ server running on http://localhost:${PORT}`);
+    console.log(`API keys loaded: ${apiKeyCount()}`);
     if (!connected) {
       console.log('WARNING: MongoDB not connected. Login/queue will fail until DB connects.');
     }

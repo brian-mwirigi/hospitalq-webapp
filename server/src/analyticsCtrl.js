@@ -87,7 +87,12 @@ export const suggestRedirect = asyncHandler(async (req, res) => {
     if (String(dept._id) === String(currentId)) continue;
     if (waiting < bestWaiting) {
       bestWaiting = waiting;
-      best = { ...dept.toObject(), waiting };
+      best = {
+        _id: String(dept._id),
+        name: dept.name,
+        slug: dept.slug,
+        waiting,
+      };
     }
   }
 
@@ -114,6 +119,15 @@ export const getSmsLogs = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: logs,
+    data: logs.map((log) => ({
+      _id: String(log._id),
+      to: log.to,
+      message: log.message,
+      status: log.status,
+      createdAt: log.createdAt,
+      department: log.department
+        ? { _id: String(log.department._id), name: log.department.name, slug: log.department.slug }
+        : null,
+    })),
   });
 });

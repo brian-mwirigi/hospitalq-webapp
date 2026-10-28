@@ -9,7 +9,7 @@ import {
   ticketJoinedMessage,
   ticketCalledMessage,
   ticketDoneMessage,
-  isDepartmentId,
+  resolveActiveDepartment,
   shapeQueueEntry,
 } from './helpers.js';
 import { getAvgConsultMinutes } from './analyticsCtrl.js';
@@ -62,16 +62,12 @@ function deptNotFound(res) {
 export const getQueue = asyncHandler(async (req, res) => {
   const { deptId } = req.params;
 
-  if (!isDepartmentId(deptId)) {
+  const department = await resolveActiveDepartment(deptId);
+  if (!department) {
     return deptNotFound(res);
   }
 
-  const department = await Department.findById(deptId);
-  if (!department || !department.isActive) {
-    return deptNotFound(res);
-  }
-
-  const queue = await getActiveQueue(deptId);
+  const queue = await getActiveQueue(department._id);
 
   res.json({
     success: true,
@@ -116,8 +112,13 @@ export const addPatient = asyncHandler(async (req, res) => {
     return badQueue(res, 'Patient name and department are required.');
   }
 
-  if (!isDepartmentId(department)) {
-    return badQueue(res, 'Department id is not valid.');
+  const dept = await resolveActiveDepartment(department);
+  if (!dept) {
+    return res.status(404).json({
+      success: false,
+      message: 'Department not found.',
+      error: 'DEPT_NOT_FOUND',
+    });
   }
 
   if (priority !== 'normal' && priority !== 'urgent') {
@@ -141,16 +142,9 @@ export const addPatient = asyncHandler(async (req, res) => {
     }
   }
 
-  const dept = await Department.findById(department);
-  if (!dept || !dept.isActive) {
-    return res.status(404).json({
-      success: false,
-      message: 'Department not found.',
-      error: 'DEPT_NOT_FOUND',
-    });
-  }
+  const departmentId = dept._id;
 
-  const ticketNumber = await getNextTicketNumber(department);
+  const ticketNumber = await getNextTicketNumber(departmentId);
   const queueDate = getStartOfDayUTC();
 
   const entry = await QueueEntry.create({
@@ -159,7 +153,7 @@ export const addPatient = asyncHandler(async (req, res) => {
     patientPhone,
     patientAge: patientAge === undefined || patientAge === null ? null : patientAge,
     gender: gender || null,
-    department,
+    department: departmentId,
     priority,
     notes,
     queueDate,
@@ -171,9 +165,9 @@ export const addPatient = asyncHandler(async (req, res) => {
     .populate('doctor', 'name email');
 
   if (patientPhone) {
-    const avg = await getAvgConsultMinutes(department);
+    const avg = await getAvgConsultMinutes(departmentId);
     const waitingCount = await QueueEntry.countDocuments({
-      department,
+      department: departmentId,
       queueDate,
       status: 'waiting',
     });
@@ -186,14 +180,14 @@ export const addPatient = asyncHandler(async (req, res) => {
         Math.max(0, waitingCount - 1) * avg
       ),
       relatedTicket: ticketNumber,
-      department,
+      department: departmentId,
     });
   }
 
-  await emitQueueUpdated(req, department);
+  await emitQueueUpdated(req, departmentId);
 
   if (req.io) {
-    req.io.to(String(department)).emit('queue:entry-added', {
+    req.io.to(String(departmentId)).emit('queue:entry-added', {
       entry: populated,
     });
   }
@@ -401,19 +395,16 @@ export const removePatient = asyncHandler(async (req, res) => {
 export const getStats = asyncHandler(async (req, res) => {
   const { deptId } = req.params;
 
-  if (!isDepartmentId(deptId)) {
+  const department = await resolveActiveDepartment(deptId);
+  if (!department) {
     return deptNotFound(res);
   }
 
-  const department = await Department.findById(deptId);
-  if (!department || !department.isActive) {
-    return deptNotFound(res);
-  }
-
+  const departmentObjectId = department._id;
   const queueDate = getStartOfDayUTC();
 
   const entries = await QueueEntry.find({
-    department: deptId,
+    department: departmentObjectId,
     queueDate,
   });
 
@@ -423,7 +414,7 @@ export const getStats = asyncHandler(async (req, res) => {
   const inProgress = entries.filter((e) => e.status === 'in-progress').length;
   const noShow = entries.filter((e) => e.status === 'no-show').length;
 
-  const avgWaitMinutes = await getAvgConsultMinutes(deptId);
+  const avgWaitMinutes = await getAvgConsultMinutes(departmentObjectId);
 
   res.json({
     success: true,

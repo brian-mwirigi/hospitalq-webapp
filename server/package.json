@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node --use-system-ca src/server.js",
     "dev": "nodemon --exec \"node --use-system-ca\" src/server.js",
-    "seed": "node --use-system-ca src/seed.js"
+    "seed": "node --use-system-ca src/seed.js",
+    "test": "node --use-system-ca --test test/security.test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

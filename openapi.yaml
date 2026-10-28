@@ -2,10 +2,24 @@ openapi: 3.0.0
 info:
   title: HospitalQ API
   version: 1.0.0
-  description: Endpoints KaziBuddy uses to check wait times and create a hospital ticket.
+  description: |
+    Endpoints KaziBuddy uses to check wait times and create a hospital ticket.
+
+    Every /api call needs a header: X-API-Key: <your-api-key>
+    A missing or wrong key is 401. Staff login is a second step. The JWT goes in
+    Authorization: Bearer <token> on POST /api/queue and GET /api/analytics/overview.
+
+    Each key may send 100 requests per minute. Over that is 429, with a Retry-After
+    header and a JSON body.
 
 servers:
+  - url: https://hospitalq-webapp.vercel.app
+    description: Production (Team 1 / KaziBuddy)
   - url: http://localhost:5000
+    description: Local development
+
+security:
+  - ApiKey: []
 
 paths:
   /api/auth/login:
@@ -90,6 +104,8 @@ paths:
                 success: false
                 message: Invalid email or password.
                 error: INVALID_CREDENTIALS
+        '429':
+          $ref: '#/components/responses/RateLimited'
 
   /api/departments:
     get:
@@ -110,6 +126,10 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Department'
+        '401':
+          $ref: '#/components/responses/MissingApiKey'
+        '429':
+          $ref: '#/components/responses/RateLimited'
 
   /api/queue/{deptId}:
     get:
@@ -147,6 +167,10 @@ paths:
                 success: false
                 message: Department not found.
                 error: DEPT_NOT_FOUND
+        '401':
+          $ref: '#/components/responses/MissingApiKey'
+        '429':
+          $ref: '#/components/responses/RateLimited'
 
   /api/queue/{deptId}/stats:
     get:
@@ -208,12 +232,17 @@ paths:
                 success: false
                 message: Department not found.
                 error: DEPT_NOT_FOUND
+        '401':
+          $ref: '#/components/responses/MissingApiKey'
+        '429':
+          $ref: '#/components/responses/RateLimited'
 
   /api/queue:
     post:
       summary: Check in an injured artisan and issue a ticket
       security:
-        - bearerAuth: []
+        - ApiKey: []
+          bearerAuth: []
       requestBody:
         required: true
         content:
@@ -273,7 +302,7 @@ paths:
                 message: Patient name and department are required.
                 error: MISSING_FIELDS
         '401':
-          description: No token, or the token is bad
+          description: Missing or invalid API key, or no staff token
           content:
             application/json:
               schema:
@@ -292,12 +321,15 @@ paths:
                 success: false
                 message: Department not found.
                 error: DEPT_NOT_FOUND
+        '429':
+          $ref: '#/components/responses/RateLimited'
 
   /api/analytics/overview:
     get:
       summary: Return average wait times per department
       security:
-        - bearerAuth: []
+        - ApiKey: []
+          bearerAuth: []
       responses:
         '200':
           description: Busy snapshot for today
@@ -360,13 +392,48 @@ paths:
                 success: false
                 message: Not authorized. Please log in.
                 error: NO_TOKEN
+        '429':
+          $ref: '#/components/responses/RateLimited'
 
 components:
   securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  responses:
+    MissingApiKey:
+      description: No X-API-Key header, or the key is not recognized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          example:
+            success: false
+            message: Missing or invalid API key
+            error: INVALID_API_KEY
+    RateLimited:
+      description: This key sent more than 100 requests in the last minute
+      headers:
+        Retry-After:
+          description: Seconds to wait before trying again
+          schema:
+            type: integer
+            example: 30
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          example:
+            success: false
+            message: Too many requests
+            error: RATE_LIMITED
+            retryAfter: 30
 
   schemas:
     ErrorBody:

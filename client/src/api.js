@@ -5,6 +5,10 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(function (config) {
+  const apiKey = import.meta.env.VITE_API_KEY
+  if (apiKey) {
+    config.headers['X-API-Key'] = apiKey
+  }
   const token = localStorage.getItem('hq_token')
   if (token) {
     config.headers.Authorization = 'Bearer ' + token
@@ -18,7 +22,10 @@ api.interceptors.response.use(
   },
   function (err) {
     if (err.response && err.response.status === 401) {
-      localStorage.removeItem('hq_token')
+      const code = err.response.data && err.response.data.error
+      if (code === 'NO_TOKEN' || code === 'INVALID_TOKEN' || code === 'INVALID_USER') {
+        localStorage.removeItem('hq_token')
+      }
     }
     return Promise.reject(err)
   }

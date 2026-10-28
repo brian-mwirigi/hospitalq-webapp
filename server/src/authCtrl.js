@@ -4,14 +4,11 @@ import { generateToken, asyncHandler } from './helpers.js'
 
 function cleanUser(user) {
   return {
-    _id: user._id,
+    _id: String(user._id),
     name: user.name,
     email: user.email,
     role: user.role,
-    department: user.department,
-    isActive: user.isActive,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+    department: user.department ? String(user.department) : null,
   }
 }
 

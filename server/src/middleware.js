@@ -50,8 +50,14 @@ export function authorize(...roles) {
   };
 }
 
-export function requireDb(req, res, next) {
+export async function requireDb(req, res, next) {
   if (mongoose.connection.readyState === 1) {
+    return next();
+  }
+
+  const { ensureDb } = await import('./db.js');
+  const ok = await ensureDb();
+  if (ok && mongoose.connection.readyState === 1) {
     return next();
   }
 
@@ -85,11 +91,23 @@ export function errorHandler(err, req, res, next) {
     });
   }
 
+  if (err.name === 'CastError' || err.name === 'ValidationError') {
+    return res.status(400).json({
+      success: false,
+      message: 'That request could not be used.',
+      error: 'MISSING_FIELDS',
+    });
+  }
+
   const statusCode = err.statusCode || 500;
+  const safeMessage =
+    statusCode >= 500
+      ? 'Something went wrong on the server.'
+      : err.message || 'Something went wrong on the server.';
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || 'Something went wrong on the server.',
+    message: safeMessage,
     error: err.code || 'SERVER_ERROR',
   });
 }

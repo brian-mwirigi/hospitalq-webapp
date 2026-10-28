@@ -26,7 +26,7 @@ export const getDepartmentBySlug = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: department,
+    data: shapeDepartment(department),
   });
 });
 
@@ -58,7 +58,7 @@ export const createDepartment = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: department,
+    data: shapeDepartment(department),
     message: 'Department created',
   });
 });
@@ -85,7 +85,7 @@ export const updateDepartment = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: department,
+    data: shapeDepartment(department),
     message: 'Department updated',
   });
 });
@@ -106,7 +106,7 @@ export const deleteDepartment = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: department,
+    data: shapeDepartment(department),
     message: 'Department deactivated',
   });
 });

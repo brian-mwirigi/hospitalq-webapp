@@ -55,3 +55,7 @@ When the check-in works we send 201 and the same queue shape as the GET. notes, 
 Posting the same patient twice makes two tickets. Thats a create, not a PUT. The handout's "same PUT twice" rule doesnt apply here because we dont have a PUT in the yaml.
 
 We tried the bad bodies on the running server. Missing name, blank name, age as a string, priority HIGH, and a junk department id all came back 400 and the queue count stayed the same. A made-up but real-looking department id was 404. No token was 401. A good check-in was 201, then GET /api/queue/{deptId} showed that ticket. A second identical POST was another ticket, number 2.
+
+Partner integration (Team 1).
+
+Live base is https://hospitalq-webapp.vercel.app (also in openapi servers). Queue GET, stats GET, and POST check-in accept either the department _id from GET /api/departments or the slug (general-opd, dental, pediatrics). Placeholder ids in yaml examples still 404. POST /api/queue and GET /api/analytics/overview need Authorization Bearer from POST /api/auth/login. See OUR_API_URLS.txt for a short checklist.

@@ -1,0 +1,76 @@
+HospitalQ — how to call our API
+For Team 1 (KaziBuddy / Juakali)
+
+Base URL
+https://hospitalq-webapp.vercel.app
+
+The path is /api/departments (with an s).
+/api/department does not exist.
+
+Every /api call now needs a header. We will send you the key in a private message.
+Do not put it in a group chat.
+
+X-API-Key: <your-api-key>
+
+No key, or the wrong key, is 401.
+More than 100 calls in one minute from that key is 429.
+
+Only GET /api/departments works if you paste it in the browser, and even that
+needs the key, so use Postman or https://hospitalq-webapp.vercel.app/docs .
+
+Login for the locked calls
+email:    reception@hospitalq.com
+password: password123
+
+Copy data.token from the login response.
+Send it as: Authorization: Bearer PASTE_TOKEN
+
+
+1. Departments (no token)
+GET https://hospitalq-webapp.vercel.app/api/departments
+
+Use a slug from the list (general-opd, dental, pediatrics)
+or copy the _id.
+
+
+2. Login (get the token)
+POST https://hospitalq-webapp.vercel.app/api/auth/login
+Header: Content-Type: application/json
+Body:
+{"email":"reception@hospitalq.com","password":"password123"}
+
+Save data.token.
+
+
+3. Today's queue (no token)
+GET https://hospitalq-webapp.vercel.app/api/queue/general-opd
+
+Swap general-opd for another slug or an _id from step 1.
+
+
+4. Wait time (no token)
+GET https://hospitalq-webapp.vercel.app/api/queue/general-opd/stats
+
+
+5. Check someone in (needs the token)
+POST https://hospitalq-webapp.vercel.app/api/queue
+Headers:
+Content-Type: application/json
+Authorization: Bearer PASTE_TOKEN
+Body:
+{"patientName":"John","department":"general-opd"}
+
+Success is 201.
+
+
+6. Overview (needs the same token)
+GET https://hospitalq-webapp.vercel.app/api/analytics/overview
+Header: Authorization: Bearer PASTE_TOKEN
+
+
+What the errors mean
+401  you skipped login, or the token is missing
+404  wrong URL, or you opened a POST in the browser
+503  server just woke up — wait a few seconds and try again
+
+If one still fails, send us the full URL, GET or POST, and the error text.

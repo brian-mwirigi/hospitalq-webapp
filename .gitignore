@@ -1,7 +1,9 @@
+.vercel
 .env
 .env.local
 client/.env.local
 server/.env
+KEYS.local.txt
 node_modules/
 client/node_modules/
 server/node_modules/

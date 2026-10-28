@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import QRCode from 'qrcode';
+import Department from './models/Department.js';
 import SmsLog from './models/SmsLog.js';
 
 export function asyncHandler(fn) {
@@ -33,6 +34,21 @@ export function isDepartmentId(id) {
   if (!id || typeof id !== 'string') return false;
   if (!mongoose.Types.ObjectId.isValid(id)) return false;
   return String(new mongoose.Types.ObjectId(id)) === id;
+}
+
+/** Resolve Mongo _id or slug (e.g. general-opd) to an active department. */
+export async function resolveActiveDepartment(idOrSlug) {
+  if (!idOrSlug || typeof idOrSlug !== 'string') return null;
+  const key = idOrSlug.trim();
+  if (!key) return null;
+
+  if (isDepartmentId(key)) {
+    const dept = await Department.findById(key);
+    if (dept && dept.isActive) return dept;
+    return null;
+  }
+
+  return Department.findOne({ slug: key.toLowerCase(), isActive: true });
 }
 
 function isoOrNull(value) {
