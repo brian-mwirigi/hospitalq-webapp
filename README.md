@@ -2,9 +2,7 @@
 
 HospitalQ is the hospital queue API that KaziBuddy calls. It lists the open departments, shows who is waiting, predicts the wait, and checks a patient in. The people using it are the KaziBuddy app, not hospital staff. Staff screens live in this same repo, but they are not part of this contract.
 
-The rendered docs are in `docs/index.html`. Open that file in a browser. You do not need to start the server to read it. It lists every contract route: login, departments, the queue, queue stats, check-in, and the overview. Each one shows the request body (when there is one) and the response body.
-
-If the API is already running, the same spec is also at http://localhost:5000/docs.
+The API docs are at https://hospitalq-webapp.vercel.app/docs. That page lists every contract route: login, departments, the queue, queue stats, check-in, and the overview. Each one shows the request body (when there is one) and the response body. The same spec is at http://localhost:5000/docs when the API is running locally.
 
 ## Run it locally
 

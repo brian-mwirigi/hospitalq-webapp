@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "npm install --prefix client && npm run build --prefix client",
+  "buildCommand": "npm install --prefix client && node -e \"require('fs').copyFileSync('openapi.yaml','client/public/openapi.yaml')\" && npm run build --prefix client",
   "installCommand": "npm install --prefix server",
   "outputDirectory": "client/dist",
   "rewrites": [
@@ -9,6 +9,16 @@
     { "source": "/docs", "destination": "/api" },
     { "source": "/docs/:path*", "destination": "/api" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/docs",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    },
+    {
+      "source": "/docs/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    }
   ],
   "functions": {
     "api/index.mjs": {
