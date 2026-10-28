@@ -4,7 +4,11 @@ export async function searchWorkers(jobType, location) {
   const res = await api.get('/quickfundi/workers', {
     params: { jobType, location },
   })
-  return res.data.data
+  return {
+    workers: Array.isArray(res.data.data) ? res.data.data : [],
+    stale: res.data.stale === true,
+    asOf: res.data.asOf || null,
+  }
 }
 
 export async function getWorker(id) {

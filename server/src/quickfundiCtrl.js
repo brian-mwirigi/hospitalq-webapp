@@ -1,4 +1,10 @@
 import { asyncHandler } from './helpers.js';
+import { fetchWithRetry } from './resilientFetch.js';
+
+const PARTNER_TIMEOUT_MS = 2000;
+const PARTNER_RETRIES = 2;
+const PARTNER_DELAY_MS = 200;
+const lastGoodWorkers = new Map();
 
 function partnerUrl() {
   return (
@@ -66,16 +72,27 @@ async function fetchQuickFundi(path, options = {}) {
   console.log('partner call', method, url, 'header names:', Object.keys(partnerHeaders(options.headers)).join(','));
 
   try {
-    const res = await fetch(url, {
-      ...options,
-      headers: partnerHeaders(options.headers),
-    });
+    const res = await fetchWithRetry(
+      url,
+      {
+        ...options,
+        headers: partnerHeaders(options.headers),
+      },
+      {
+        timeoutMs: PARTNER_TIMEOUT_MS,
+        retries: PARTNER_RETRIES,
+        delayMs: PARTNER_DELAY_MS,
+      }
+    );
     const body = await readQuickFundiBody(res);
     if (!res.ok) console.error('partner returned', res.status);
     return { status: res.status, body };
   } catch (err) {
-    const code = err.cause?.code || err.cause?.errors?.[0]?.code || err.message;
-    console.error('partner call failed:', code);
+    const reason =
+      err.name === 'TimeoutError'
+        ? 'timeout'
+        : err.cause?.code || err.cause?.errors?.[0]?.code || err.message;
+    console.error('partner call failed:', reason);
     return { status: 0, body: null };
   }
 }
@@ -101,10 +118,11 @@ export const searchWorkers = asyncHandler(async (req, res) => {
   }
 
   const qs = new URLSearchParams({ jobType: String(jobType), location: String(location) });
+  const cacheKey = `${jobType}|${location}`;
   const upstream = await fetchQuickFundi(`/workers?${qs.toString()}`);
 
   if (upstream.status === 0 || upstream.status >= 500) {
-    return partnerDown(res);
+    return savedWorkersOrDown(res, cacheKey);
   }
 
   if (upstream.status >= 400) {
@@ -117,14 +135,33 @@ export const searchWorkers = asyncHandler(async (req, res) => {
 
   if (!Array.isArray(upstream.body)) {
     console.error('partner returned', upstream.status, 'but workers was not a list');
-    return partnerDown(res);
+    return savedWorkersOrDown(res, cacheKey);
   }
+
+  const data = upstream.body.map(shapeWorkerSummary);
+  const asOf = new Date().toISOString();
+  lastGoodWorkers.set(cacheKey, { data, asOf });
 
   res.json({
     success: true,
-    data: upstream.body.map(shapeWorkerSummary),
+    data,
+    stale: false,
+    asOf,
   });
 });
+
+function savedWorkersOrDown(res, cacheKey) {
+  const saved = lastGoodWorkers.get(cacheKey);
+  if (saved) {
+    return res.json({
+      success: true,
+      data: saved.data,
+      stale: true,
+      asOf: saved.asOf,
+    });
+  }
+  return partnerDown(res);
+}
 
 export const getWorker = asyncHandler(async (req, res) => {
   const upstream = await fetchQuickFundi(`/workers/${encodeURIComponent(req.params.id)}`);

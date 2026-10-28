@@ -41,7 +41,7 @@ export default function Admin() {
   const [verifyingBooking, setVerifyingBooking] = useState(false)
 
   const {
-    data: fundiWorkers = [],
+    data: fundiSearch,
     isLoading: loadingFundi,
     error: fundiError,
     refetch: refetchFundi,
@@ -50,6 +50,8 @@ export default function Admin() {
     queryKey: ['quickfundi', 'workers', jobType, location],
     queryFn: () => searchWorkers(jobType, location),
   })
+
+  const fundiWorkers = fundiSearch?.workers || []
 
   const { data: fundiProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ['quickfundi', 'worker', selectedWorkerId],
@@ -259,6 +261,20 @@ export default function Admin() {
             {fetchingFundi ? 'Loading...' : 'Search'}
           </Button>
         </div>
+
+        {fundiSearch?.stale ? (
+          <p
+            style={{
+              marginTop: 12,
+              padding: '8px 10px',
+              background: '#fff3cd',
+              border: '1px solid #e0c36a',
+            }}
+          >
+            Showing saved data from {new Date(fundiSearch.asOf).toLocaleTimeString()}. QuickFundi is
+            not responding.
+          </p>
+        ) : null}
 
         {fundiError ? (
           <ErrorBox
